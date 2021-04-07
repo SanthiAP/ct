@@ -1,0 +1,19 @@
+{
+  "name": "custom-tools",
+  "version": "1.0.0",
+  "description": "App with many custom tools",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ct"
+  },
+  "author": "Santhi AP",
+  "license": "ISC",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.1.0-9",
+    "jquery": "^3.6.0"
+  }
+}
