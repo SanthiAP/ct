@@ -28,25 +28,57 @@ html, body, .page-container {
 }
 
 #map-container {
-  transition: margin-left .5s;
+  transition: .5s;
   width: 100%;
   height: 100%;
 }
 
 .sidenav-container {
-  height: 100%;
+  height: calc(98% - 11vh);
   width: 0;
   position: fixed;
   z-index: 1;
-  top: 0;
-  left: 0;
+  top: 11vh;
+  right: 0;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 0.5%;
+  border-radius: 8px;
+  background: #d0d0ee;
   transition: 0.5s;
+}
+
+.all-tool-content {
+  height: calc(100% - 10vh);
+  width: 100%;
+  overflow: auto;
+}
+
+.side-nav-header {
+  height: 10vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  background: #01015b;
+  color: white;
+}
+
+.side-nav-header h3 {
+  margin: auto;
+}
+
+.side-nav-header svg {
+  font-size: large;
+  margin-right: 10px;
+  cursor: pointer;
 }
 
 #map-div {
   width: 100%;
   height: 100%;
+  transition: 0.5s;
 }
 
 .esriSimpleSliderTL {
