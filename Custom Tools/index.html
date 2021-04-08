@@ -10,9 +10,17 @@
   <!-- Jquery -->
   <script src="node_modules/jquery/dist/jquery.min.js"></script>
 
+  <!-- Perfect scrollbar -->
+  <link rel="stylesheet" href="node_modules/perfect-scrollbar/css/perfect-scrollbar.css">
+  <script src="node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js"></script>
+
+  <!-- Alertify -->
+  <script src="node_modules/alertifyjs/build/alertify.min.js"></script>
+  <link rel="stylesheet" href="node_modules/alertifyjs/build/css/alertify.min.css">
+
   <!-- FontAwesome -->
-  <script src="node_modules/@fortawesome/fontawesome-free/js/all.js"></script>
-  <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.css">
+  <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+  <script src="node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
 
   <!-- Arcgis -->
   <script src="https://js.arcgis.com/3.35/"></script>
@@ -33,11 +41,24 @@
     <div class="content-container">
       <div id="tools-content-container" class="sidenav-container">
         <div class="side-nav-header">
-          <h3>Test</h3>
+          <h3>Tool Heading</h3>
           <i class="fas fa-times"></i>
         </div>
         <div class="all-tool-content">
-
+          <div id="tool-bm-container" class="tools-ind-container">
+            <div class="bm-input-container">
+              <input type="text" value="" placeholder="Enter Bookmark name..." id="bm-name" class="bm-input">
+              <button id="create-bm" class="bm-btn">
+                <i class="fas fa-spinner fa-spin"></i>
+                Create
+              </button>
+            </div>
+            <div class="bm-content-container">
+            </div>
+          </div>
+          <div id="tool-draw-container" class="tools-ind-container">
+            draw
+          </div>
         </div>
       </div>
 

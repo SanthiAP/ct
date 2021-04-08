@@ -1,11 +1,17 @@
 $(document).ready(function () {
   var map;
+  const nullArray = ["", undefined, null, NaN];
+  var bookmarks = {};
+  var sessionBMData = localStorage.getItem("bm-data");
+  // var bmscroll = new PerfectScrollbar(".bm-content-container");
   var titleMapping = {
     "tool-bm": "BookMark",
     "tool-draw": "Draw"
   }
-  require(["esri/map"],
-    function (Map) {
+  require(["esri/map",
+  "esri/geometry/Extent"],
+  function (Map,
+      Extent) {
 
       map = new Map("map-div", {
         basemap: "topo",
@@ -13,12 +19,29 @@ $(document).ready(function () {
         zoom: 13
       });
 
+      loadSessionData();
+      function loadSessionData() {
+        if(!sessionBMData) {
+          return;
+        }
+
+        bookmarks = JSON.parse(sessionBMData);
+        Object.keys(bookmarks).forEach(function(bmName) {
+          createBookmark(bmName);
+        });
+        unbindBMEvents();
+        bindBMEvents();
+      }
+
       $(".upside a").click(function() {
         var clickedElem = $(this);
         $(".upside a").removeClass("active-tool");
         clickedElem.addClass("active-tool");
         openNav();
-        $(".side-nav-header h3").text(titleMapping[clickedElem.prop("id")]);
+        $(".all-tool-content .tools-ind-container").css("display", "none");
+        var selectedToolId = clickedElem.prop("id");
+        $("#"+ selectedToolId + "-container").css("display", "block");
+        $(".side-nav-header h3").text(titleMapping[selectedToolId]);
       });
 
       function openNav() {
@@ -34,6 +57,110 @@ $(document).ready(function () {
       function closeNav() {
         $("#map-container").css("width", "100%");
         $("#tools-content-container").css("width", "0%");
+      }
+
+      $("#create-bm").click(function() {
+        var bmName = $("#bm-name").val();
+        if(nullArray.indexOf(bmName) >= 0 ) {
+          alertify.warning("Please enter bookmark name");
+          return;
+        }
+
+        if(Object.keys(bookmarks).indexOf(bmName) >= 0) {
+          alertify.warning("Bookmark name must be unique");
+          return;
+        }
+        
+        bookmarks[bmName] = map.extent;
+        setSession_BM();
+        unbindBMEvents();
+        createBookmark(bmName);
+        bindBMEvents()
+        $("#bm-name").val("");
+        alertify.success("Bookmark added successfully");
+      });
+
+      function unbindBMEvents() {
+        $(".bm-single a").unbind("click");
+        $(".bm-delete").unbind("click");
+        $(".bm-edit").unbind("click");
+        $(".save-edit-bm").unbind("click");
+      }
+
+      function bindBMEvents() {
+        $(".bm-single a").click(bookmarkClik);
+        $(".bm-delete").click(bookmarkDeleteClik);
+        $(".bm-edit").click(bookmarkEditClik);
+        $(".save-edit-bm").click(bookmarkSaveClik);
+      }
+
+      function bookmarkClik() {
+        var bmname = $(this).text();
+        if(nullArray.indexOf(bmname) >= 0) {
+          alertify.error("Sorry! Something went wrong");
+          return;
+        }
+
+        var bmExt = bookmarks[bmname];
+        if(!bmExt) {
+          alertify.error("Sorry! Bookmark extent cannot be found");
+          return;
+        }
+
+        map.setExtent(new Extent(bmExt));
+      }
+
+      function bookmarkSaveClik() {
+        var currElem_a = $(this).closest(".bm-single").find("a");
+        var currElem_edit = $(this).closest(".bm-single").find(".bm-edit-items");
+        var selectedBMName = currElem_a.text();
+        currElem_a.css("display", "block");
+        currElem_edit.css("display", "none");
+        delete bookmarks[selectedBMName];
+        var editedBMname = currElem_edit.find("input").val();
+        bookmarks[editedBMname] = map.extent;
+        setSession_BM();
+        currElem_a.text(editedBMname);
+        alertify.success("Bookmark edited successfully!");
+      }
+
+      function bookmarkEditClik() {
+        var currElem_a = $(this).closest(".bm-single").find("a");
+        var currElem_edit = $(this).closest(".bm-single").find(".bm-edit-items");
+        var selectedBMName = currElem_a.text();
+        currElem_a.css("display", "none");
+        currElem_edit.css("display", "block");
+        currElem_edit.find("input").val(selectedBMName);
+      }
+
+      function bookmarkDeleteClik() {
+        $(this).parent().parent().remove();
+        var bmname = $(this).parent().parent().find("a").text();
+        delete bookmarks[bmname];
+        setSession_BM();
+        alertify.success("Bookmark deleted successfully");
+      }
+
+      function createBookmark(bmn) {
+        $(".bm-content-container").append(`
+        <div class="bm-single">
+          <a href="#">`+ bmn +`</a>
+          <div class="bm-edit-items">
+            <input type="text" value="" placeholder="Enter Bookmark name..." class="bm-input bm-name-edit">
+            <button class="save-edit-bm">
+              <i class="fas fa-save"></i>
+            </button>
+          </div>
+          <div class="bm-edit-tools">
+            <div class="bm-edit"><i class="fas fa-edit"></i></div>
+            <div class="bm-delete"><i class="fas fa-trash-alt"></i></div>
+          </div>
+        </div>
+      `);
+      }
+
+      function setSession_BM() {
+        localStorage.setItem("bm-data", JSON.stringify(bookmarks));
       }
     });
 })
