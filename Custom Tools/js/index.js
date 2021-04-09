@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  var map;
+  var map, bmFPLayer, bmFPSymbol;
   const nullArray = ["", undefined, null, NaN];
   var bookmarks = {};
   var sessionBMData = localStorage.getItem("bm-data");
@@ -9,9 +9,24 @@ $(document).ready(function () {
     "tool-draw": "Draw"
   }
   require(["esri/map",
-  "esri/geometry/Extent"],
-  function (Map,
-      Extent) {
+  "esri/Color",
+  "esri/graphic",
+
+  "esri/geometry/Extent",
+  "esri/geometry/geometryEngine",
+
+  "esri/layers/GraphicsLayer",
+
+  "esri/symbols/SimpleFillSymbol",
+  "esri/symbols/SimpleLineSymbol"
+  ],
+    function (Map,
+      Color,
+      Graphic,
+      Extent, geometryEngine,
+      GraphicsLayer,
+      SimpleFillSymbol, SimpleLineSymbol
+      ) {
 
       map = new Map("map-div", {
         basemap: "topo",
@@ -19,28 +34,39 @@ $(document).ready(function () {
         zoom: 13
       });
 
+      bmFPLayer = new GraphicsLayer({
+        "id": "bookmark"
+      });
+      map.addLayer(bmFPLayer);
+
+      bmFPSymbol = new SimpleFillSymbol(
+        "solid",  
+        new SimpleLineSymbol("solid", new Color([232,104,80]), 2),
+        new Color([232,104,80,0.25])
+      );
+
       loadSessionData();
       function loadSessionData() {
-        if(!sessionBMData) {
+        if (!sessionBMData) {
           return;
         }
 
         bookmarks = JSON.parse(sessionBMData);
-        Object.keys(bookmarks).forEach(function(bmName) {
+        Object.keys(bookmarks).forEach(function (bmName) {
           createBookmark(bmName);
         });
         unbindBMEvents();
         bindBMEvents();
       }
 
-      $(".upside a").click(function() {
+      $(".upside a").click(function () {
         var clickedElem = $(this);
         $(".upside a").removeClass("active-tool");
         clickedElem.addClass("active-tool");
         openNav();
         $(".all-tool-content .tools-ind-container").css("display", "none");
         var selectedToolId = clickedElem.prop("id");
-        $("#"+ selectedToolId + "-container").css("display", "block");
+        $("#" + selectedToolId + "-container").css("display", "block");
         $(".side-nav-header h3").text(titleMapping[selectedToolId]);
       });
 
@@ -49,7 +75,7 @@ $(document).ready(function () {
         $("#tools-content-container").css("width", "29%");
       }
 
-      $(".side-nav-header svg").click(function() {
+      $(".side-nav-header svg").click(function () {
         $(".upside a").removeClass("active-tool");
         closeNav();
       })
@@ -59,20 +85,22 @@ $(document).ready(function () {
         $("#tools-content-container").css("width", "0%");
       }
 
-      $("#create-bm").click(function() {
+      $("#create-bm").click(function () {
         var bmName = $("#bm-name").val();
-        if(nullArray.indexOf(bmName) >= 0 ) {
+        if (nullArray.indexOf(bmName) >= 0) {
           alertify.warning("Please enter bookmark name");
           return;
         }
 
-        if(Object.keys(bookmarks).indexOf(bmName) >= 0) {
+        if (Object.keys(bookmarks).indexOf(bmName) >= 0) {
           alertify.warning("Bookmark name must be unique");
           return;
         }
-        
+
         bookmarks[bmName] = map.extent;
         setSession_BM();
+        removeAllBMFootprint();
+        bmCheckBoxChange();
         unbindBMEvents();
         createBookmark(bmName);
         bindBMEvents()
@@ -96,13 +124,13 @@ $(document).ready(function () {
 
       function bookmarkClik() {
         var bmname = $(this).text();
-        if(nullArray.indexOf(bmname) >= 0) {
+        if (nullArray.indexOf(bmname) >= 0) {
           alertify.error("Sorry! Something went wrong");
           return;
         }
 
         var bmExt = bookmarks[bmname];
-        if(!bmExt) {
+        if (!bmExt) {
           alertify.error("Sorry! Bookmark extent cannot be found");
           return;
         }
@@ -120,6 +148,8 @@ $(document).ready(function () {
         var editedBMname = currElem_edit.find("input").val();
         bookmarks[editedBMname] = map.extent;
         setSession_BM();
+        removeAllBMFootprint();
+        bmCheckBoxChange();
         currElem_a.text(editedBMname);
         alertify.success("Bookmark edited successfully!");
       }
@@ -138,13 +168,15 @@ $(document).ready(function () {
         var bmname = $(this).parent().parent().find("a").text();
         delete bookmarks[bmname];
         setSession_BM();
+        removeAllBMFootprint();
+        bmCheckBoxChange();
         alertify.success("Bookmark deleted successfully");
       }
 
       function createBookmark(bmn) {
         $(".bm-content-container").append(`
         <div class="bm-single">
-          <a href="#">`+ bmn +`</a>
+          <a href="#">`+ bmn + `</a>
           <div class="bm-edit-items">
             <input type="text" value="" placeholder="Enter Bookmark name..." class="bm-input bm-name-edit">
             <button class="save-edit-bm">
@@ -161,6 +193,42 @@ $(document).ready(function () {
 
       function setSession_BM() {
         localStorage.setItem("bm-data", JSON.stringify(bookmarks));
+      }
+
+      $('#show-all-bm').change(bmCheckBoxChange);
+      function bmCheckBoxChange () {
+        if ($("#show-all-bm").is(':checked')) {
+          showAllBMFootprint();
+          return;
+        }
+        removeAllBMFootprint();
+      }
+
+      function showAllBMFootprint() {
+        Object.keys(bookmarks).forEach(function(abm) {
+          var fpAttr = {
+            "BookmarkName": abm
+          }
+          var fpExt = new Extent(bookmarks[abm]);
+          var afp = new Graphic(fpExt, bmFPSymbol, fpAttr);
+          bmFPLayer.add(afp);
+        });
+        setBMExtent();
+      }
+
+      function setBMExtent() {
+        var allFPExts = [];
+        var unionExt;
+        Object.keys(bookmarks).forEach(function(abm) {
+          unionExt = geometryEngine.union([bookmarks[abm], unionExt])
+          allFPExts.push(bookmarks[abm]);
+        })
+        var unionExt = geometryEngine.union(allFPExts);
+        map.setExtent(new Extent(unionExt));
+      }
+
+      function removeAllBMFootprint() {
+        bmFPLayer.clear();
       }
     });
 })
