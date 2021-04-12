@@ -158,14 +158,15 @@ $(document).ready(function () {
           var grafsym;
           if(symbol) {
             if (symbol.type == "picturemarkersymbol") {
-              grafsym = new PictureMarkerSymbol(symbol);
+              grafsym = new PictureMarkerSymbol(symbol.url, symbol.width, symbol.height);
             } 
             if(symbol.type == "simplemarkersymbol") {
               var outlineColor = symbol.outline.color;
               var symColor = symbol.color;
+              var symsize = parseInt(symbol.size);
               grafsym = new SimpleMarkerSymbol({
                 "color": new Color([symColor.r, symColor.g, symColor.b, symColor.a]),
-                "size": parseInt(symbol.size),
+                // "size": symsize,
                 "angle": nullArray.indexOf(symbol.angle) >= 0 ? 0 : symbol.angle,
                 "xoffset": 0,
                 "yoffset": 0,
@@ -178,6 +179,7 @@ $(document).ready(function () {
                   "style": "esriSLSSolid"
                 }
               });
+              grafsym.setSize(symsize);
             }
 
             if(!symbol.type && symbol.url) {
@@ -509,12 +511,7 @@ $(document).ready(function () {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = function (event) {
-          drawGraphicSymbol = new PictureMarkerSymbol({
-            "url": reader.result,
-            "height": 20,
-            "width": 20,
-            "type": "esriPMS"
-          });
+          drawGraphicSymbol = new PictureMarkerSymbol(reader.result, 20, 20);
         };
       }
 

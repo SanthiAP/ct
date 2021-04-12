@@ -355,8 +355,7 @@ ul.draw-point-tabs li.draw-current {
   display: none;
 }
 
-#delete-draw-points,
-#delete-sym-draw-points {
+#delete-draw-points, #delete-sym-draw-points {
   background: #9c0202
 }
 
@@ -364,8 +363,7 @@ ul.draw-point-tabs li.draw-current {
   display: flex !important;
 }
 
-#pt-colorSelector div,
-#line-colorSelector div {
+#pt-colorSelector div, #line-colorSelector div {
   background-color: rgb(40, 40, 133);
   width: 100%;
   height: 32px;
@@ -373,8 +371,7 @@ ul.draw-point-tabs li.draw-current {
   cursor: pointer;
 }
 
-#pt-style,
-#line-style {
+#pt-style, #line-style {
   height: 100px;
   background: white;
   padding: 6px;
@@ -385,8 +382,7 @@ ul.draw-point-tabs li.draw-current {
   flex-flow: wrap;
 }
 
-#pt-style div,
-#line-style div {
+#pt-style div, #line-style div {
   padding: 6px;
   width: 46px;
   height: 36px;
@@ -409,9 +405,7 @@ ul.draw-point-tabs li.draw-current {
   font-size: 50px;
 }
 
-#pt-style div[title="Circle"],
-#pt-style div[title="Square"],
-#pt-style div[title="Diamond"] {
+#pt-style div[title="Circle"], #pt-style div[title="Square"], #pt-style div[title="Diamond"] {
   font-size: 22px;
 }
 
@@ -421,8 +415,7 @@ ul.draw-point-tabs li.draw-current {
   cursor: pointer;
 }
 
-#line-style div svg:hover path,
-.selected-line-symbol path {
+#line-style div svg:hover path, .selected-line-symbol path {
   stroke: white;
 }
 
@@ -455,4 +448,16 @@ ul.draw-point-tabs li.draw-current {
   justify-content: center;
   height: 35px;
   align-items: center;
+}
+
+#draw-line {
+  background-image: url(../images/draw_line.png);
+}
+
+#draw-polyline {
+  background-image: url(../images/draw_polyline.png);
+}
+
+#draw-freehand-polyline {
+  background-image: url(../images/draw_freehand_polyline.png);
 }
