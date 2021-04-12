@@ -1,32 +1,64 @@
 $(document).ready(function () {
-  var map, bmFPLayer, bmFPSymbol;
+  var map, bmFPLayer, bmFPSymbol, bmFPLabel;
+  var drawGraphicSymbol;
+  var drawPointGraphicLayer;
+  var drawToolBar, editToolBar;
+  var pointDeleteGrafic;
   const nullArray = ["", undefined, null, NaN];
   var bookmarks = {};
+  var smsMapping = {
+    "Triangle": "esriSMSTriangle",
+    "Circle": "esriSMSCircle",
+    "Square": "esriSMSSquare",
+    "Cross": "esriSMSCross",
+    "Diamond": "esriSMSDiamond",
+    "X": "esriSMSX"
+  }
+  var smsMapping2 = {
+    "triangle": "esriSMSTriangle",
+    "circle": "esriSMSCircle",
+    "square": "esriSMSSquare",
+    "cross": "esriSMSCross",
+    "diamond": "esriSMSDiamond",
+    "x": "esriSMSX"
+  }
   var sessionBMData = localStorage.getItem("bm-data");
+  var sessionPointGraphicData = localStorage.getItem("point-graphic-data");
   // var bmscroll = new PerfectScrollbar(".bm-content-container");
   var titleMapping = {
     "tool-bm": "BookMark",
     "tool-draw": "Draw"
   }
   require(["esri/map",
-  "esri/Color",
-  "esri/graphic",
+    "esri/Color",
+    "esri/graphic",
 
-  "esri/geometry/Extent",
-  "esri/geometry/geometryEngine",
+    "esri/geometry/Extent",
+    "esri/geometry/Polygon",
+    "esri/geometry/Point",
+    "esri/geometry/Multipoint",
+    "esri/geometry/geometryEngine",
 
-  "esri/layers/GraphicsLayer",
+    "esri/layers/GraphicsLayer",
 
-  "esri/symbols/SimpleFillSymbol",
-  "esri/symbols/SimpleLineSymbol"
+    "esri/symbols/SimpleFillSymbol",
+    "esri/symbols/TextSymbol",
+    "esri/symbols/Font",
+    "esri/symbols/SimpleLineSymbol",
+    "esri/symbols/PictureMarkerSymbol",
+    "esri/symbols/SimpleMarkerSymbol",
+
+    "esri/toolbars/draw",
+    "esri/toolbars/edit"
   ],
     function (Map,
       Color,
       Graphic,
-      Extent, geometryEngine,
+      Extent, Polygon, Point, Multipoint, geometryEngine,
       GraphicsLayer,
-      SimpleFillSymbol, SimpleLineSymbol
-      ) {
+      SimpleFillSymbol, TextSymbol, Font, SimpleLineSymbol, PictureMarkerSymbol, SimpleMarkerSymbol,
+      Draw, Edit
+    ) {
 
       map = new Map("map-div", {
         basemap: "topo",
@@ -34,19 +66,66 @@ $(document).ready(function () {
         zoom: 13
       });
 
+      map.on("load", mapLoaded);
+
       bmFPLayer = new GraphicsLayer({
         "id": "bookmark"
       });
-      map.addLayer(bmFPLayer);
+
+      bmFPLabel = new GraphicsLayer({
+        "id": "bookmarkLabel"
+      });
+
+      drawPointGraphicLayer = new GraphicsLayer({
+        "id": "pointGraphicLayer"
+      });
+
+      map.addLayers([drawPointGraphicLayer, bmFPLabel, bmFPLayer]);
+
+      var pointDeleteHighlight = new SimpleFillSymbol(
+        "solid",
+        new SimpleLineSymbol("solid", new Color([232, 104, 80]), 4),
+        new Color([232, 104, 80, 0.15])
+      );
+      drawPointGraphicLayer.on("click", function(evt) {
+        if($("#draw-point-container").css("display") == "none") {
+          return;
+        }
+        editToolBar.activate(Edit.MOVE, evt.graphic);
+        if(evt.graphic.symbol.type == "picturemarkersymbol") 
+          $("#delete-draw-points").show();
+
+        if(evt.graphic.symbol.type == "simplemarkersymbol") 
+          $("#delete-sym-draw-points").show();
+          
+          pointDeleteGrafic = evt.graphic;
+          map.graphics.add(new Graphic(new Point(evt.graphic.geometry), pointDeleteHighlight));
+        });
+        
+        map.on("click", function (evt) {
+          if(evt.graphic) {
+            return;
+          }
+          $("#delete-draw-points").hide();
+          $("#delete-sym-draw-points").hide();
+        editToolBar.deactivate();
+      });
 
       bmFPSymbol = new SimpleFillSymbol(
-        "solid",  
-        new SimpleLineSymbol("solid", new Color([232,104,80]), 2),
-        new Color([232,104,80,0.25])
+        "solid",
+        new SimpleLineSymbol("solid", new Color([232, 104, 80]), 2),
+        new Color([232, 104, 80, 0.15])
       );
 
-      loadSessionData();
-      function loadSessionData() {
+      function mapLoaded() {
+        drawToolBar = new Draw(map);
+        drawToolBar.on("draw-end", addGraphic);
+        editToolBar = new Edit(map);
+      }
+
+      loadSessionPtGraficData()
+      loadSessionBMData();
+      function loadSessionBMData() {
         if (!sessionBMData) {
           return;
         }
@@ -57,6 +136,72 @@ $(document).ready(function () {
         });
         unbindBMEvents();
         bindBMEvents();
+      }
+
+      function loadSessionPtGraficData() {
+        if (!sessionPointGraphicData) {
+          return;
+        }
+
+        var allptgrafDets = JSON.parse(sessionPointGraphicData);
+        Object.keys(allptgrafDets).forEach(function (apt) {
+          var agrfdets = allptgrafDets[apt];
+          var geom;
+          if (agrfdets.geometry.points) {
+            geom = new Multipoint(agrfdets.geometry);
+          } else {
+            geom = new Point(agrfdets.geometry);
+          }
+
+          var symbol = agrfdets.symbol;
+          var grafsym;
+          if(symbol) {
+            if (symbol.type == "picturemarkersymbol") {
+              grafsym = new PictureMarkerSymbol(symbol);
+            } 
+            if(symbol.type == "simplemarkersymbol") {
+              var outlineColor = symbol.outline.color;
+              var symColor = symbol.color;
+              grafsym = new SimpleMarkerSymbol({
+                "color": new Color([symColor.r, symColor.g, symColor.b, symColor.a]),
+                "size": parseInt(symbol.size),
+                "angle": nullArray.indexOf(symbol.angle) >= 0 ? 0 : symbol.angle,
+                "xoffset": 0,
+                "yoffset": 0,
+                "type": "esriSMS",
+                "style": smsMapping2[symbol.style],
+                "outline": {
+                  "color": new Color([outlineColor.r, outlineColor.g, outlineColor.b, outlineColor.a]),
+                  "width": parseInt(2),
+                  "type": "esriSLS",
+                  "style": "esriSLSSolid"
+                }
+              });
+            }
+
+            if(!symbol.type && symbol.url) {
+              grafsym = new PictureMarkerSymbol(symbol);
+            }
+          }
+          drawPointGraphicLayer.add(new Graphic(geom, grafsym));
+        });
+      }
+
+      function addGraphic(evt) {
+        drawToolBar.deactivate();
+        switch (evt.geometry.type) {
+          case "point":
+            drawPointGraphicLayer.add(new Graphic(evt.geometry, drawGraphicSymbol));
+            break;
+            case "multipoint":
+              var points = evt.geometry.points;
+              points.forEach(function(apt){
+                var ptgrf = new Point(apt, evt.geometry.spatialReference);
+                drawPointGraphicLayer.add(new Graphic(ptgrf, drawGraphicSymbol));
+            });
+            break;
+          default:
+        }
       }
 
       $(".upside a").click(function () {
@@ -135,7 +280,7 @@ $(document).ready(function () {
           return;
         }
 
-        map.setExtent(new Extent(bmExt));
+        map.setExtent(new Extent(bmExt), true);
       }
 
       function bookmarkSaveClik() {
@@ -196,7 +341,7 @@ $(document).ready(function () {
       }
 
       $('#show-all-bm').change(bmCheckBoxChange);
-      function bmCheckBoxChange () {
+      function bmCheckBoxChange() {
         if ($("#show-all-bm").is(':checked')) {
           showAllBMFootprint();
           return;
@@ -205,30 +350,239 @@ $(document).ready(function () {
       }
 
       function showAllBMFootprint() {
-        Object.keys(bookmarks).forEach(function(abm) {
+        var bmKeys = Object.keys(bookmarks);
+        if (!bmKeys.length) {
+          return;
+        }
+        bmKeys.forEach(function (abm) {
           var fpAttr = {
             "BookmarkName": abm
           }
           var fpExt = new Extent(bookmarks[abm]);
           var afp = new Graphic(fpExt, bmFPSymbol, fpAttr);
           bmFPLayer.add(afp);
+          var txtSym = new TextSymbol(abm).setColor(
+            new Color("black")).setAlign(Font.ALIGN_START).setFont(
+              new Font("11pt").setWeight(Font.WEIGHT_BOLD).setFamily("calibri")).
+            setHaloColor(new Color("white")).setHaloSize(2);
+          var polyCentroid = fpExt.getCenter();
+          var lblGraphic = new Graphic(new Point(polyCentroid), txtSym);
+          bmFPLabel.add(lblGraphic);
         });
         setBMExtent();
       }
 
       function setBMExtent() {
         var allFPExts = [];
-        var unionExt;
-        Object.keys(bookmarks).forEach(function(abm) {
-          unionExt = geometryEngine.union([bookmarks[abm], unionExt])
-          allFPExts.push(bookmarks[abm]);
+        Object.keys(bookmarks).forEach(function (abm) {
+          allFPExts.push(new Extent(bookmarks[abm]));
         })
         var unionExt = geometryEngine.union(allFPExts);
-        map.setExtent(new Extent(unionExt));
+        var polyGeom = new Polygon(unionExt);
+        map.setExtent(polyGeom.getExtent());
       }
 
       function removeAllBMFootprint() {
         bmFPLayer.clear();
+        bmFPLabel.clear();
+      }
+
+      $('.draw-mode-toggle').click(function (e) {
+        e.preventDefault();
+
+        let $this = $(this);
+
+        if ($this.next().hasClass('show')) {
+          $this.next().removeClass('show');
+          $this.next().slideUp(350);
+        } else {
+          $this.parent().parent().find('li .draw-mode-inner').removeClass('show');
+          $this.parent().parent().find('li .draw-mode-inner').slideUp(350);
+          $this.next().toggleClass('show');
+          $this.next().slideToggle(350);
+        }
+      });
+
+      $('ul.draw-point-tabs li').click(function () {
+        var tab_id = $(this).attr('data-tab');
+
+        $('ul.draw-point-tabs li').removeClass('draw-current');
+        $('.draw-point-tab-content').removeClass('draw-current');
+
+        $(this).addClass('draw-current');
+        $("#" + tab_id).addClass('draw-current');
+      });
+
+      var $fileInput = $('.file-input');
+      var $droparea = $('.file-drop-area');
+
+      // highlight drag area
+      $fileInput.on('dragenter focus click', function () {
+        $droparea.addClass('is-active');
+      });
+
+      // back to normal state
+      $fileInput.on('dragleave blur drop', function () {
+        $droparea.removeClass('is-active');
+      });
+
+      // change inner text
+      $fileInput.on('change', function () {
+        var filesCount = $(this)[0].files.length;
+        var $textContainer = $(this).prev();
+
+        if (filesCount === 1) {
+          // if single file is selected, show file name
+          var fileName = $(this).val().split('\\').pop();
+          $textContainer.text(fileName);
+        } else {
+          // otherwise show number of files
+          $textContainer.text(filesCount + ' files selected');
+        }
+      });
+
+      $("#clear-pt-pic-selection").click(function () {
+        $(".file-msg").text("or drag and drop files here");
+        $("#draw-point-picture").val("");
+      });
+
+      $("#draw-sym-point").click(function () {
+        createSMS();
+        drawToolBar.activate("point");
+      });
+
+      $("#draw-point").click(function () {
+        var selectedImg = $("#draw-point-picture").val();
+        if (nullArray.indexOf(selectedImg) >= 0) {
+          alertify.warning("Please give input");
+          return;
+        }
+        createPMS();
+        drawToolBar.activate("point");
+      });
+
+      $("#draw-sym-multipoint").click(function () {
+        createSMS();
+        drawToolBar.activate("multipoint");
+      });
+
+      $("#draw-multipoint").click(function () {
+        var selectedImg = $("#draw-point-picture").val();
+        if (nullArray.indexOf(selectedImg) >= 0) {
+          alertify.warning("Please give input");
+          return;
+        }
+        createPMS();
+        drawToolBar.activate("multipoint");
+      });
+
+      function createSMS() {
+        var rgb = $("#pt-colorSelector div").css("backgroundColor").replace(/[^\d,]/g, '').split(',');
+        var symcolor = [];
+        rgb.forEach(function(str) {
+          symcolor.push(parseInt(str));
+        });
+        var symsize = $("#pt-size").val();
+        var symangle = $("#pt-angle").val();
+        var symstyle = $(".selected-pt-symbol").prop("title");
+        drawGraphicSymbol = new SimpleMarkerSymbol({
+          "color": symcolor,
+          "size": parseInt(symsize),
+          "angle": parseInt(symangle),
+          "xoffset": 0,
+          "yoffset": 0,
+          "type": "esriSMS",
+          "style": smsMapping[symstyle],
+          "outline": {
+            "color": symcolor,
+            "width": 2,
+            "type": "esriSLS",
+            "style": "esriSLSSolid"
+          }
+        });
+      }
+
+      function createPMS() {
+        // get a reference to the file
+        var file = $("#draw-point-picture").prop("files")[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (event) {
+          drawGraphicSymbol = new PictureMarkerSymbol({
+            "url": reader.result,
+            "height": 20,
+            "width": 20,
+            "type": "esriPMS"
+          });
+        };
+      }
+
+      $("#draw-point-deactivate, #draw-sym-point-deactivate").click(function () {
+        drawToolBar.deactivate();
+      });
+
+      $("#save-draw-points, #save-sym-draw-points").click(function () {
+        var layerGraphics = drawPointGraphicLayer.graphics;
+        var stringGraphics = {};
+        layerGraphics.forEach(function (agrf, ind) {
+          stringGraphics[ind] = {
+            "geometry": agrf.geometry,
+            "symbol": agrf.symbol
+          }
+        });
+
+        var pointGraphics = JSON.stringify(stringGraphics);
+        localStorage.setItem("point-graphic-data", pointGraphics);
+        alertify.success("Point graphics stored successfully");
+      });
+
+      $("#delete-draw-points, #delete-sym-draw-points").click(function() {
+        if(!pointDeleteGrafic) {
+          alertify.error("Graphic cannot be found");
+          return;
+        }
+        drawPointGraphicLayer.remove(pointDeleteGrafic);
+        pointDeleteGrafic = undefined;
+        map.graphics.clear();
+        $("#delete-draw-points, #delete-sym-draw-points").hide();
+        alertify.success("Point deleted successfully");
+      });
+
+      $('#pt-colorSelector').ColorPicker({
+        color: '#0000ff',
+        onShow: function (colpkr) {
+          $(colpkr).fadeIn(500);
+          return false;
+        },
+        onHide: function (colpkr) {
+          $(colpkr).fadeOut(500);
+          return false;
+        },
+        onChange: function (hsb, hex, rgb) {
+          $('#pt-colorSelector div').css('backgroundColor', '#' + hex);
+          setPointPreview()
+        }
+      });
+
+      $("#pt-size, #pt-angle").on("change", setPointPreview)
+
+      $("#pt-style div").click(function() {
+        $("#pt-style div").removeClass("selected-pt-symbol");
+        $(this).addClass("selected-pt-symbol");
+        setPointPreview();
+      });
+
+      $("#pt-style div[title='Circle']").trigger("click");
+      function setPointPreview() {
+        var selectedStyle = $(".selected-pt-symbol")
+        $("#pt-symbol-preview").empty();
+        $("#pt-symbol-preview").append(selectedStyle.html());
+        $("#pt-symbol-preview svg").css("color", $("#pt-colorSelector div").css("background-color"));
+        $("#pt-symbol-preview svg").css("font-size", $("#pt-size").val() + "px");
+        $("#pt-symbol-preview svg").css("transform", "rotate(" + $("#pt-angle").val() + "deg)");
+        if(selectedStyle.prop("title") == "Diamond") {
+          $("#pt-symbol-preview svg").css("transform", "rotate(45deg)");
+        }
       }
     });
 })

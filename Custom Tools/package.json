@@ -16,7 +16,6 @@
     "@fortawesome/fontawesome-free": "^5.15.1",
     "alertifyjs": "^1.13.1",
     "jquery": "^3.6.0",
-    "jquery-ui": "^1.12.1",
     "perfect-scrollbar": "^1.5.0"
   }
 }
