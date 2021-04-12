@@ -37,6 +37,7 @@
   <link rel="stylesheet" href="css/circularMenu.css">
 
   <!-- Custom JS -->
+  <script src="data/lineSVGs.json"></script>
   <script src="js/index.js"></script>
 </head>
 
@@ -170,12 +171,60 @@
 
               <li>
                 <a class="draw-mode-toggle" href=#>Line</a>
-                <p class="draw-mode-inner">
-                  Let's make a nice big leafy tree. You have to make those little noises or it won't work. Let's put
-                  some happy little clouds in our world. We don't really know where this goes - and I'm not sure we
-                  really care. When you do it your way you can go anywhere you choose. No worries. No cares. Just float
-                  and wait for the wind to blow you around.
-                </p>
+                <div class="draw-mode-inner padding-accordion">
+                  <div class="form-style">
+                    <label for="line-color" class="pt-color-label"><span>Color <span class="required">*</span></span>
+                      <div id="line-colorSelector"><div style="background-color: #0000ff"></div></div>
+                    </label>
+                    <label for="line-size"><span>Size <span class="required">*</span></span>
+                      <input id="line-size" type="number" class="input-field" name="line-size" value="1" min="1" max="10" />
+                    </label>
+                    <label for="line-style"><span>Style<span class="required">*</span></span>
+                      <div id="line-style">
+                        <div title="Solid">
+                          <svg overflow="hidden" width="36" height="36" style="touch-action: none;"><defs></defs><path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="none" dojoGfxStrokeStyle="solid" transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)"></path></svg>
+                        </div>
+                        <div title="Dash">
+                          <svg overflow="hidden" width="36" height="36" style="touch-action: none;"><defs></defs><path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="16,12" dojoGfxStrokeStyle="dash" transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)"></path></svg>
+                        </div>
+                        <div title="Dot">
+                          <svg overflow="hidden" width="36" height="36" style="touch-action: none;"><defs></defs><path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="4,12" dojoGfxStrokeStyle="dot" transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)"></path></svg>
+                        </div>
+                        <div title="Dash Dot">
+                          <svg overflow="hidden" width="36" height="36" style="touch-action: none;"><defs></defs><path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="16,12,4,12" dojoGfxStrokeStyle="dashdot" transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)"></path></svg>
+                        </div>
+                        <div title="Dash Dot Dot">
+                          <svg overflow="hidden" width="36" height="36" style="touch-action: none;"><defs></defs><path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="32,12,4,12,4,12" dojoGfxStrokeStyle="longdashdotdot" transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)"></path></svg>
+                        </div>
+                      </div>
+                  </label>
+                  <label for="line-symbol-preview" class="pt-color-label"> 
+                    <span>Preview</span>
+                    <div id="line-symbol-preview">
+                      
+                    </div>
+                  </label>
+                  <div class="flex-div draw-pt-opts">
+                    <button id="draw-line" class="pt-draw-btn">
+                      <i class="fas fa-circle"></i>
+                    </button>
+                    <button id="draw-freehand" class="pt-draw-btn">
+                      <i class="fas fa-circle"></i>
+                      <i class="fas fa-circle"></i>
+                      <i class="fas fa-circle"></i>
+                    </button>
+                    <button id="draw-line-deactivate" class="pt-draw-btn">
+                      <i class="fas fa-ban"></i>
+                    </button>
+                    <button id="save-draw-line" class="pt-draw-btn">
+                      <i class="fas fa-save"></i>
+                    </button>
+                    <button id="delete-draw-line" class="pt-draw-btn">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                  </div>
+                </div>
               </li>
 
               <li>

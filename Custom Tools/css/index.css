@@ -364,7 +364,8 @@ ul.draw-point-tabs li.draw-current {
   display: flex !important;
 }
 
-#pt-colorSelector div {
+#pt-colorSelector div,
+#line-colorSelector div {
   background-color: rgb(40, 40, 133);
   width: 100%;
   height: 32px;
@@ -372,7 +373,8 @@ ul.draw-point-tabs li.draw-current {
   cursor: pointer;
 }
 
-#pt-style {
+#pt-style,
+#line-style {
   height: 100px;
   background: white;
   padding: 6px;
@@ -383,7 +385,8 @@ ul.draw-point-tabs li.draw-current {
   flex-flow: wrap;
 }
 
-#pt-style div {
+#pt-style div,
+#line-style div {
   padding: 6px;
   width: 46px;
   height: 36px;
@@ -391,6 +394,11 @@ ul.draw-point-tabs li.draw-current {
   align-items: center;
   justify-content: center;
   border-radius: 4px;
+}
+
+#line-style div {
+  width: auto;
+  height: auto;
 }
 
 #pt-style div#pt-diamond .fa-square {
@@ -413,10 +421,38 @@ ul.draw-point-tabs li.draw-current {
   cursor: pointer;
 }
 
+#line-style div svg:hover path,
+.selected-line-symbol path {
+  stroke: white;
+}
+
+#line-style div svg:hover, .selected-line-symbol {
+  background: #01015b;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 #pt-symbol-preview {
   height: 30px;
   display: flex;
   justify-content: center;
   width: 30px;
+  align-items: center;
+}
+
+.padding-accordion {
+  padding: 10px;
+}
+
+#line-style {
+  width: 55%;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+#line-symbol-preview {
+  display: flex;
+  justify-content: center;
+  height: 35px;
   align-items: center;
 }

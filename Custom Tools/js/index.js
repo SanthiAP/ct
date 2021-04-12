@@ -6,6 +6,7 @@ $(document).ready(function () {
   var pointDeleteGrafic;
   const nullArray = ["", undefined, null, NaN];
   var bookmarks = {};
+  var linePreviewSVG = lineSVG;
   var smsMapping = {
     "Triangle": "esriSMSTriangle",
     "Circle": "esriSMSCircle",
@@ -548,21 +549,38 @@ $(document).ready(function () {
         alertify.success("Point deleted successfully");
       });
 
-      $('#pt-colorSelector').ColorPicker({
-        color: '#0000ff',
-        onShow: function (colpkr) {
-          $(colpkr).fadeIn(500);
-          return false;
-        },
-        onHide: function (colpkr) {
-          $(colpkr).fadeOut(500);
-          return false;
-        },
-        onChange: function (hsb, hex, rgb) {
-          $('#pt-colorSelector div').css('backgroundColor', '#' + hex);
-          setPointPreview()
-        }
-      });
+      initiateColorPicker("pt-colorSelector");
+      initiateColorPicker("line-colorSelector");
+      function initiateColorPicker(id) {
+        $('#'+ id).ColorPicker({
+          color: '#0000ff',
+          onShow: function (colpkr) {
+            $(colpkr).fadeIn(500);
+            return false;
+          },
+          onHide: function (colpkr) {
+            $(colpkr).fadeOut(500);
+            return false;
+          },
+          onChange: function (hsb, hex, rgb) {
+            if(id == "pt-colorSelector") {
+              ptSelectorChange(hex)
+            } else {
+              lineSelectorChange(hex);
+            }
+          }
+        });
+      }
+      
+      function ptSelectorChange(hex) {
+        $('#pt-colorSelector div').css('backgroundColor', '#' + hex);
+        setPointPreview()
+      }
+
+      function lineSelectorChange(hex) {
+        $('#line-colorSelector div').css('backgroundColor', '#' + hex);
+        setLinePreview();
+      }
 
       $("#pt-size, #pt-angle").on("change", setPointPreview)
 
@@ -570,6 +588,12 @@ $(document).ready(function () {
         $("#pt-style div").removeClass("selected-pt-symbol");
         $(this).addClass("selected-pt-symbol");
         setPointPreview();
+      });
+
+      $("#line-style div").click(function() {
+        $("#line-style div svg").removeClass("selected-line-symbol");
+        $(this).children('svg').addClass("selected-line-symbol");
+        setLinePreview();
       });
 
       $("#pt-style div[title='Circle']").trigger("click");
@@ -584,5 +608,16 @@ $(document).ready(function () {
           $("#pt-symbol-preview svg").css("transform", "rotate(45deg)");
         }
       }
+
+      $("#line-size").on("change", setLinePreview);
+      $("#line-style div[title='Solid'] svg").trigger("click");
+      function setLinePreview() {
+        var selectedStyle = $(".selected-line-symbol")
+        $("#line-symbol-preview").empty();
+        $("#line-symbol-preview").append(linePreviewSVG[selectedStyle.parent('div').prop("title")]);
+        $("#line-symbol-preview svg path").css("stroke", $("#line-colorSelector div").css("background-color"));
+        $("#line-symbol-preview svg path").css("stroke-width", $("#line-size").val());
+      }
     });
+
 })

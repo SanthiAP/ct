@@ -21,7 +21,7 @@
 }
 
 .form-style input.input-field, .form-style .select-field, 
-#pt-colorSelector, #pt-style {
+#pt-colorSelector, #pt-style, #line-colorSelector {
 	width: 62%;	
 }
 
