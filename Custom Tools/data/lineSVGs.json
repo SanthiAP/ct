@@ -3,5 +3,26 @@ var lineSVG = {
   "Dash": "<svg overflow='hidden' width='190' height='20' style='touch-action: none;'><defs></defs><path fill='none' fill-opacity='0' stroke='rgb(79, 129, 189)' stroke-opacity='1' stroke-width='4' stroke-linecap='butt' stroke-linejoin='miter' stroke-miterlimit='4' path='M -90,0 L 90,0 E' d='M-90 0L 90 0' stroke-dasharray='16,12' dojoGfxStrokeStyle='dash' transform='matrix(1.00000000,0.00000000,0.00000000,1.00000000,95.00000000,10.00000000)'></path></svg>",
   "Dot": "<svg overflow='hidden' width='190' height='20' style='touch-action: none;'><defs></defs><path fill='none' fill-opacity='0' stroke='rgb(79, 129, 189)' stroke-opacity='1' stroke-width='4' stroke-linecap='butt' stroke-linejoin='miter' stroke-miterlimit='4' path='M -90,0 L 90,0 E' d='M-90 0L 90 0' stroke-dasharray='4,12' dojoGfxStrokeStyle='dot' transform='matrix(1.00000000,0.00000000,0.00000000,1.00000000,95.00000000,10.00000000)'></path></svg>",
   "Dash Dot": "<svg overflow='hidden' width='190' height='20' style='touch-action: none;'><defs></defs><path fill='none' fill-opacity='0' stroke='rgb(79, 129, 189)' stroke-opacity='1' stroke-width='4' stroke-linecap='butt' stroke-linejoin='miter' stroke-miterlimit='4' path='M -90,0 L 90,0 E' d='M-90 0L 90 0' stroke-dasharray='16,12,4,12' dojoGfxStrokeStyle='dashdot' transform='matrix(1.00000000,0.00000000,0.00000000,1.00000000,95.00000000,10.00000000)'></path></svg>",
-  "Dash Dot Dot": "<svg overflow='hidden' width='190' height='20' style='touch-action: none;'><defs></defs><path fill='none' fill-opacity='0' stroke='rgb(79, 129, 189)' stroke-opacity='1' stroke-width='4' stroke-linecap='butt' stroke-linejoin='miter' stroke-miterlimit='4' path='M -90,0 L 90,0 E' d='M-90 0L 90 0' stroke-dasharray='32,12,4,12,4,12' dojoGfxStrokeStyle='longdashdotdot' transform='matrix(1.00000000,0.00000000,0.00000000,1.00000000,95.00000000,10.00000000)'></path></svg>"
+  "Dash Dot Dot": "<svg overflow='hidden' width='190' height='20' style='touch-action: none;'><defs></defs><path fill='none' fill-opacity='0' stroke='rgb(79, 129, 189)' stroke-opacity='1' stroke-width='4' stroke-linecap='butt' stroke-linejoin='miter' stroke-miterlimit='4' path='M -90,0 L 90,0 E' d='M-90 0L 90 0' stroke-dasharray='32,12,4,12,4,12' dojoGfxStrokeStyle='longdashdotdot' transform='matrix(1.00000000,0.00000000,0.00000000,1.00000000,95.00000000,10.00000000)'></path></svg>",
+  "slsMapping": {
+    "Solid": "esriSLSSolid",
+    "Dash": "esriSLSDash",
+    "Dot": "esriSLSDot",
+    "Dash Dot Dot": "esriSLSDashDotDot",
+    "Dash Dot": "esriSLSDashDot"
+  },
+  "slsRetrieveMapping": {
+    "solid": "esriSLSSolid",
+    "dash": "esriSLSDash",
+    "dot": "esriSLSDot",
+    "longdashdotdot": "esriSLSDashDotDot",
+    "dashdot": "esriSLSDashDot"
+  },
+  "slsTitleMapping": {
+    "solid": "Solid",
+    "dash": "Dash",
+    "dot": "Dot",
+    "longdashdotdot": "Dash Dot Dot",
+    "dashdot": "Dash Dot"
+  },
 }

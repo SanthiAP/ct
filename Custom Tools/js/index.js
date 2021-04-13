@@ -4,6 +4,7 @@ $(document).ready(function () {
   var drawPointGraphicLayer, drawLineGraphicLayer;
   var drawToolBar, editToolBar;
   var pointDeleteGrafic;
+  var lineEditGrafic;
   const nullArray = ["", undefined, null, NaN];
   var bookmarks = {};
   var linePreviewSVG = lineSVG;
@@ -25,6 +26,7 @@ $(document).ready(function () {
   }
   var sessionBMData = localStorage.getItem("bm-data");
   var sessionPointGraphicData = localStorage.getItem("point-graphic-data");
+  var sessionLineGraphicData = localStorage.getItem("line-graphic-data");
   // var bmscroll = new PerfectScrollbar(".bm-content-container");
   var titleMapping = {
     "tool-bm": "BookMark",
@@ -38,6 +40,7 @@ $(document).ready(function () {
     "esri/geometry/Polygon",
     "esri/geometry/Point",
     "esri/geometry/Multipoint",
+    "esri/geometry/Polyline",
     "esri/geometry/geometryEngine",
 
     "esri/layers/GraphicsLayer",
@@ -55,7 +58,7 @@ $(document).ready(function () {
     function (Map,
       Color,
       Graphic,
-      Extent, Polygon, Point, Multipoint, geometryEngine,
+      Extent, Polygon, Point, Multipoint, Polyline, geometryEngine,
       GraphicsLayer,
       SimpleFillSymbol, TextSymbol, Font, SimpleLineSymbol, PictureMarkerSymbol, SimpleMarkerSymbol,
       Draw, Edit
@@ -85,35 +88,63 @@ $(document).ready(function () {
         "id": "lineGraphicLayer"
       });
 
-      map.addLayers([drawPointGraphicLayer, drawLineGraphicLayer,  bmFPLabel, bmFPLayer]);
+      map.addLayers([drawPointGraphicLayer, drawLineGraphicLayer, bmFPLabel, bmFPLayer]);
 
       var pointDeleteHighlight = new SimpleFillSymbol(
         "solid",
         new SimpleLineSymbol("solid", new Color([232, 104, 80]), 4),
         new Color([232, 104, 80, 0.15])
       );
-      drawPointGraphicLayer.on("click", function(evt) {
-        if($("#draw-point-container").css("display") == "none") {
+      drawPointGraphicLayer.on("click", function (evt) {
+        if ($("#draw-point-container").css("display") == "none") {
           return;
         }
         editToolBar.activate(Edit.MOVE, evt.graphic);
-        if(evt.graphic.symbol.type == "picturemarkersymbol") 
+        if (evt.graphic.symbol.type == "picturemarkersymbol")
           $("#delete-draw-points").show();
 
-        if(evt.graphic.symbol.type == "simplemarkersymbol") 
+        if (evt.graphic.symbol.type == "simplemarkersymbol")
           $("#delete-sym-draw-points").show();
-          
-          pointDeleteGrafic = evt.graphic;
-          map.graphics.add(new Graphic(new Point(evt.graphic.geometry), pointDeleteHighlight));
+
+        pointDeleteGrafic = evt.graphic;
+        map.graphics.add(new Graphic(new Point(evt.graphic.geometry), pointDeleteHighlight));
+      });
+
+      drawLineGraphicLayer.on("click", function(evt) {
+        if ($("#draw-line-container").css("display") == "none") {
+          return;
+        }
+
+        lineEditGrafic = evt.graphic;
+        $("#delete-draw-line").show();
+        activateLineEditTB(lineEditGrafic);
+        var sym = lineEditGrafic.symbol;
+        $("#line-size").val(sym.width);
+        var convertedClr = rgbToHex(sym.color.r, sym.color.g, sym.color.b);
+        $("#line-colorSelector div").css("background-color", convertedClr);
+        $("#line-style div svg").removeClass('selected-line-symbol');
+        $("#line-style div[title='"+ linePreviewSVG.slsTitleMapping[sym.style] +"'] svg").addClass('selected-line-symbol');
+        setLinePreview("layerKlik")
+      });
+
+      function rgbToHex(r, g, b) {
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+      }
+
+      function activateLineEditTB(graf) {
+        editToolBar.activate(Edit.EDIT_VERTICES | Edit.MOVE | Edit.ROTATE | Edit.SCALE, graf, {
+          "allowAddVertices": true,
+          "allowDeleteVertices": true
         });
-        
-        map.on("click", function (evt) {
-          if(evt.graphic) {
-            return;
-          }
-          $("#delete-draw-points").hide();
-          $("#delete-sym-draw-points").hide();
+      }
+
+      map.on("click", function (evt) {
+        if (evt.graphic) {
+          return;
+        }
+        $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line").hide();
         editToolBar.deactivate();
+        lineEditGrafic = undefined;
       });
 
       bmFPSymbol = new SimpleFillSymbol(
@@ -129,6 +160,7 @@ $(document).ready(function () {
       }
 
       loadSessionPtGraficData()
+      loadSessionLineGraficData()
       loadSessionBMData();
       function loadSessionBMData() {
         if (!sessionBMData) {
@@ -160,11 +192,11 @@ $(document).ready(function () {
 
           var symbol = agrfdets.symbol;
           var grafsym;
-          if(symbol) {
+          if (symbol) {
             if (symbol.type == "picturemarkersymbol") {
               grafsym = new PictureMarkerSymbol(symbol.url, symbol.width, symbol.height);
-            } 
-            if(symbol.type == "simplemarkersymbol") {
+            }
+            if (symbol.type == "simplemarkersymbol") {
               var outlineColor = symbol.outline.color;
               var symColor = symbol.color;
               var symsize = parseInt(symbol.size);
@@ -186,11 +218,31 @@ $(document).ready(function () {
               grafsym.setSize(symsize);
             }
 
-            if(!symbol.type && symbol.url) {
+            if (!symbol.type && symbol.url) {
               grafsym = new PictureMarkerSymbol(symbol);
             }
           }
           drawPointGraphicLayer.add(new Graphic(geom, grafsym));
+        });
+      }
+
+      function loadSessionLineGraficData() {
+        if (!sessionLineGraphicData) {
+          return;
+        }
+
+        var allptgrafDets = JSON.parse(sessionLineGraphicData);
+        Object.keys(allptgrafDets).forEach(function (aline) {
+          var agrfdets = allptgrafDets[aline];
+          var geom = agrfdets.geometry;
+          var sym = agrfdets.symbol;
+          var grafsym = new SimpleLineSymbol({
+            type: "esriSLS",
+            style: linePreviewSVG.slsRetrieveMapping[sym.style]
+          });
+          grafsym.setWidth(sym.width);
+          grafsym.setColor(new Color(sym.color));
+          drawLineGraphicLayer.add(new Graphic(new Polyline(geom), grafsym));
         });
       }
 
@@ -200,15 +252,16 @@ $(document).ready(function () {
           case "point":
             drawPointGraphicLayer.add(new Graphic(evt.geometry, drawGraphicSymbol));
             break;
-            case "multipoint":
-              var points = evt.geometry.points;
-              points.forEach(function(apt){
-                var ptgrf = new Point(apt, evt.geometry.spatialReference);
-                drawPointGraphicLayer.add(new Graphic(ptgrf, drawGraphicSymbol));
+          case "multipoint":
+            var points = evt.geometry.points;
+            points.forEach(function (apt) {
+              var ptgrf = new Point(apt, evt.geometry.spatialReference);
+              drawPointGraphicLayer.add(new Graphic(ptgrf, drawGraphicSymbol));
             });
             break;
-          case "line":
-            drawLineGraphicLayer.add(new Graphic(evt.geometry, drawGraphicSymbol))
+          case "polyline":
+            drawLineGraphicLayer.add(new Graphic(evt.geometry, drawGraphicSymbol));
+            break;
           default:
         }
       }
@@ -488,7 +541,7 @@ $(document).ready(function () {
       function createSMS() {
         var rgb = $("#pt-colorSelector div").css("backgroundColor").replace(/[^\d,]/g, '').split(',');
         var symcolor = [];
-        rgb.forEach(function(str) {
+        rgb.forEach(function (str) {
           symcolor.push(parseInt(str));
         });
         var symsize = $("#pt-size").val();
@@ -521,41 +574,22 @@ $(document).ready(function () {
         };
       }
 
-      $("#draw-point-deactivate, #draw-sym-point-deactivate").click(function () {
+      $("#draw-point-deactivate, #draw-sym-point-deactivate, #draw-line-deactivate").click(function () {
         drawToolBar.deactivate();
       });
 
       $("#save-draw-points, #save-sym-draw-points").click(function () {
-        var layerGraphics = drawPointGraphicLayer.graphics;
-        var stringGraphics = {};
-        layerGraphics.forEach(function (agrf, ind) {
-          stringGraphics[ind] = {
-            "geometry": agrf.geometry,
-            "symbol": agrf.symbol
-          }
-        });
-
-        var pointGraphics = JSON.stringify(stringGraphics);
-        localStorage.setItem("point-graphic-data", pointGraphics);
-        alertify.success("Point graphics stored successfully");
+        saveGraficData(drawPointGraphicLayer, "point-graphic-data");
       });
 
-      $("#delete-draw-points, #delete-sym-draw-points").click(function() {
-        if(!pointDeleteGrafic) {
-          alertify.error("Graphic cannot be found");
-          return;
-        }
-        drawPointGraphicLayer.remove(pointDeleteGrafic);
-        pointDeleteGrafic = undefined;
-        map.graphics.clear();
-        $("#delete-draw-points, #delete-sym-draw-points").hide();
-        alertify.success("Point deleted successfully");
+      $("#delete-draw-points, #delete-sym-draw-points").click(function () {
+        deleteGraphics(pointDeleteGrafic, drawPointGraphicLayer);
       });
 
       initiateColorPicker("pt-colorSelector");
       initiateColorPicker("line-colorSelector");
       function initiateColorPicker(id) {
-        $('#'+ id).ColorPicker({
+        $('#' + id).ColorPicker({
           color: '#0000ff',
           onShow: function (colpkr) {
             $(colpkr).fadeIn(500);
@@ -566,7 +600,7 @@ $(document).ready(function () {
             return false;
           },
           onChange: function (hsb, hex, rgb) {
-            if(id == "pt-colorSelector") {
+            if (id == "pt-colorSelector") {
               ptSelectorChange(hex)
             } else {
               lineSelectorChange(hex);
@@ -574,7 +608,7 @@ $(document).ready(function () {
           }
         });
       }
-      
+
       function ptSelectorChange(hex) {
         $('#pt-colorSelector div').css('backgroundColor', '#' + hex);
         setPointPreview()
@@ -585,15 +619,24 @@ $(document).ready(function () {
         setLinePreview();
       }
 
+      function redrawGraphicLine() {
+        drawLineGraphicLayer.remove(lineEditGrafic);
+        createSLS();
+        var graf = new Graphic(new Polyline(lineEditGrafic.geometry), drawGraphicSymbol);
+        lineEditGrafic = graf;
+        activateLineEditTB(lineEditGrafic);
+        drawLineGraphicLayer.add(graf);
+      }
+
       $("#pt-size, #pt-angle").on("change", setPointPreview)
 
-      $("#pt-style div").click(function() {
+      $("#pt-style div").click(function () {
         $("#pt-style div").removeClass("selected-pt-symbol");
         $(this).addClass("selected-pt-symbol");
         setPointPreview();
       });
 
-      $("#line-style div").click(function() {
+      $("#line-style div").click(function () {
         $("#line-style div svg").removeClass("selected-line-symbol");
         $(this).children('svg').addClass("selected-line-symbol");
         setLinePreview();
@@ -607,38 +650,96 @@ $(document).ready(function () {
         $("#pt-symbol-preview svg").css("color", $("#pt-colorSelector div").css("background-color"));
         $("#pt-symbol-preview svg").css("font-size", $("#pt-size").val() + "px");
         $("#pt-symbol-preview svg").css("transform", "rotate(" + $("#pt-angle").val() + "deg)");
-        if(selectedStyle.prop("title") == "Diamond") {
+        if (selectedStyle.prop("title") == "Diamond") {
           $("#pt-symbol-preview svg").css("transform", "rotate(45deg)");
         }
       }
 
-      $("#line-size").on("change", setLinePreview);
+      $("#line-size").on("change",         setLinePreview);
       $("#line-style div[title='Solid'] svg").trigger("click");
-      function setLinePreview() {
+      function setLinePreview(hint) {
         var selectedStyle = $(".selected-line-symbol")
         $("#line-symbol-preview").empty();
         $("#line-symbol-preview").append(linePreviewSVG[selectedStyle.parent('div').prop("title")]);
         $("#line-symbol-preview svg path").css("stroke", $("#line-colorSelector div").css("background-color"));
         $("#line-symbol-preview svg path").css("stroke-width", $("#line-size").val());
+        if(lineEditGrafic && !hint) {
+          redrawGraphicLine();
+        }
       }
-      
-      $("#draw-line").click(function() {
+
+      $("#draw-line").click(function () {
         drawToolBar.activate("line");
         createSLS();
       });
-      
+
+      $("#draw-polyline").click(function () {
+        drawToolBar.activate("polyline");
+        createSLS();
+      });
+
+      $("#draw-freehand-polyline").click(function () {
+        drawToolBar.activate("freehandpolyline");
+        createSLS();
+      });
+
       function createSLS() {
-        var rgb = getSymColor("line-colorSelector");
-        var sls = new SimpleLineSymbol();
+        var colr = getSymColor("line-colorSelector");
+        var style = $(".selected-line-symbol").parent('div').prop("title");
+        drawGraphicSymbol = new SimpleLineSymbol({
+          "type": "esriSLS",
+          "style": linePreviewSVG.slsMapping[style]
+        });
+        drawGraphicSymbol.setColor(new Color(colr));
+        drawGraphicSymbol.setWidth(parseInt($("#line-size").val()));
       }
 
       function getSymColor(id) {
-        var rgb = $("#"+ id +" div").css("backgroundColor").replace(/[^\d,]/g, '').split(',');
+        var rgb = $("#" + id + " div").css("backgroundColor").replace(/[^\d,]/g, '').split(',');
         var symcolor = [];
-        rgb.forEach(function(str) {
+        rgb.forEach(function (str) {
           symcolor.push(parseInt(str));
         });
         return symcolor;
       }
-  });
-})
+
+      $("#save-draw-line").click(function () {
+        saveGraficData(drawLineGraphicLayer, "line-graphic-data");
+        lineEditGrafic = undefined;
+      });
+
+      function saveGraficData(lay, sessionKey) {
+        var layerGraphics = lay.graphics;
+        var stringGraphics = {};
+        layerGraphics.forEach(function (agrf, ind) {
+          stringGraphics[ind] = {
+            "geometry": agrf.geometry,
+            "symbol": agrf.symbol
+          }
+        });
+
+        var graf = JSON.stringify(stringGraphics);
+        localStorage.setItem(sessionKey, graf);
+        $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line").hide();
+        editToolBar.deactivate();
+        alertify.success("Graphics stored successfully");
+      }
+      $("#delete-draw-line").click(function() {
+        deleteGraphics(lineEditGrafic, drawLineGraphicLayer);
+        lineEditGrafic = undefined;
+      });
+
+      function deleteGraphics(graf, lay) {
+        if (!graf) {
+          alertify.error("Graphic cannot be found");
+          return;
+        }
+        lay.remove(graf);
+        graf = undefined;
+        map.graphics.clear();
+        editToolBar.deactivate();
+        $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line").hide();
+        alertify.success("Graphics deleted successfully");
+      }
+    });
+});
