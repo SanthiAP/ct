@@ -339,7 +339,8 @@ ul.draw-point-tabs li.draw-current {
   cursor: pointer;
 }
 
-#save-draw-points, #save-sym-draw-points {
+#save-draw-points, #save-sym-draw-points,
+#save-draw-line {
   background: #015b21;
 }
 
@@ -347,16 +348,15 @@ ul.draw-point-tabs li.draw-current {
   font-size: 10px;
 }
 
-#draw-point-deactivate, #draw-sym-point-deactivate {
+#draw-point-deactivate, #draw-sym-point-deactivate,
+#draw-line-deactivate {
   background: #9c9702;
 }
 
-#delete-draw-points, #delete-sym-draw-points {
+#delete-draw-points, #delete-sym-draw-points,
+#delete-draw-line {
+  background: #9c0202;
   display: none;
-}
-
-#delete-draw-points, #delete-sym-draw-points {
-  background: #9c0202
 }
 
 .pt-color-label, #pt-style {
@@ -451,13 +451,23 @@ ul.draw-point-tabs li.draw-current {
 }
 
 #draw-line {
-  background-image: url(../images/draw_line.png);
+  background-image: url(../images/draw_line_1.png);
 }
 
 #draw-polyline {
-  background-image: url(../images/draw_polyline.png);
+  background-image: url(../images/draw_polyline_1.png);
 }
 
 #draw-freehand-polyline {
-  background-image: url(../images/draw_freehand_polyline.png);
+  background-image: url(../images/draw_freehand_polyline_1.png);
+}
+
+.line-btns {
+  background-size: 37px;
+  background-repeat: no-repeat;
+  width: 37px;
+}
+
+.line-draw-opts {
+  padding: 0 15px 15px 15px;
 }

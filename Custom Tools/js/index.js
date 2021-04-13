@@ -1,7 +1,7 @@
 $(document).ready(function () {
   var map, bmFPLayer, bmFPSymbol, bmFPLabel;
   var drawGraphicSymbol;
-  var drawPointGraphicLayer;
+  var drawPointGraphicLayer, drawLineGraphicLayer;
   var drawToolBar, editToolBar;
   var pointDeleteGrafic;
   const nullArray = ["", undefined, null, NaN];
@@ -81,7 +81,11 @@ $(document).ready(function () {
         "id": "pointGraphicLayer"
       });
 
-      map.addLayers([drawPointGraphicLayer, bmFPLabel, bmFPLayer]);
+      drawLineGraphicLayer = new GraphicsLayer({
+        "id": "lineGraphicLayer"
+      });
+
+      map.addLayers([drawPointGraphicLayer, drawLineGraphicLayer,  bmFPLabel, bmFPLayer]);
 
       var pointDeleteHighlight = new SimpleFillSymbol(
         "solid",
@@ -203,6 +207,8 @@ $(document).ready(function () {
                 drawPointGraphicLayer.add(new Graphic(ptgrf, drawGraphicSymbol));
             });
             break;
+          case "line":
+            drawLineGraphicLayer.add(new Graphic(evt.geometry, drawGraphicSymbol))
           default:
         }
       }
@@ -615,6 +621,24 @@ $(document).ready(function () {
         $("#line-symbol-preview svg path").css("stroke", $("#line-colorSelector div").css("background-color"));
         $("#line-symbol-preview svg path").css("stroke-width", $("#line-size").val());
       }
-    });
+      
+      $("#draw-line").click(function() {
+        drawToolBar.activate("line");
+        createSLS();
+      });
+      
+      function createSLS() {
+        var rgb = getSymColor("line-colorSelector");
+        var sls = new SimpleLineSymbol();
+      }
 
+      function getSymColor(id) {
+        var rgb = $("#"+ id +" div").css("backgroundColor").replace(/[^\d,]/g, '').split(',');
+        var symcolor = [];
+        rgb.forEach(function(str) {
+          symcolor.push(parseInt(str));
+        });
+        return symcolor;
+      }
+  });
 })
