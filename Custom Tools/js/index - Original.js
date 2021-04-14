@@ -1,14 +1,13 @@
 $(document).ready(function () {
   var map, bmFPLayer, bmFPSymbol, bmFPLabel;
   var drawGraphicSymbol;
-  var drawPointGraphicLayer, drawLineGraphicLayer, drawPolygonGraphicLayer;
+  var drawPointGraphicLayer, drawLineGraphicLayer;
   var drawToolBar, editToolBar;
   var pointDeleteGrafic;
-  var lineEditGrafic, polygonEditGrafic;
+  var lineEditGrafic;
   const nullArray = ["", undefined, null, NaN];
   var bookmarks = {};
   var linePreviewSVG = lineSVG;
-  var polygonSymbolConfig = polygonSymbolMapping;
   var smsMapping = {
     "Triangle": "esriSMSTriangle",
     "Circle": "esriSMSCircle",
@@ -28,7 +27,6 @@ $(document).ready(function () {
   var sessionBMData = localStorage.getItem("bm-data");
   var sessionPointGraphicData = localStorage.getItem("point-graphic-data");
   var sessionLineGraphicData = localStorage.getItem("line-graphic-data");
-  var sessionPolygonGraphicData = localStorage.getItem("polygon-graphic-data");
   // var bmscroll = new PerfectScrollbar(".bm-content-container");
   var titleMapping = {
     "tool-bm": "BookMark",
@@ -53,7 +51,6 @@ $(document).ready(function () {
     "esri/symbols/SimpleLineSymbol",
     "esri/symbols/PictureMarkerSymbol",
     "esri/symbols/SimpleMarkerSymbol",
-    "esri/symbols/PictureFillSymbol",
 
     "esri/toolbars/draw",
     "esri/toolbars/edit"
@@ -63,7 +60,7 @@ $(document).ready(function () {
       Graphic,
       Extent, Polygon, Point, Multipoint, Polyline, geometryEngine,
       GraphicsLayer,
-      SimpleFillSymbol, TextSymbol, Font, SimpleLineSymbol, PictureMarkerSymbol, SimpleMarkerSymbol, PictureFillSymbol,
+      SimpleFillSymbol, TextSymbol, Font, SimpleLineSymbol, PictureMarkerSymbol, SimpleMarkerSymbol,
       Draw, Edit
     ) {
 
@@ -91,11 +88,7 @@ $(document).ready(function () {
         "id": "lineGraphicLayer"
       });
 
-      drawPolygonGraphicLayer = new GraphicsLayer({
-        "id": "polygonGraphicLayer"
-      });
-
-      map.addLayers([drawPointGraphicLayer, drawLineGraphicLayer, bmFPLabel, bmFPLayer, drawPolygonGraphicLayer]);
+      map.addLayers([drawPointGraphicLayer, drawLineGraphicLayer, bmFPLabel, bmFPLayer]);
 
       var pointDeleteHighlight = new SimpleFillSymbol(
         "solid",
@@ -117,7 +110,7 @@ $(document).ready(function () {
         map.graphics.add(new Graphic(new Point(evt.graphic.geometry), pointDeleteHighlight));
       });
 
-      drawLineGraphicLayer.on("click", function (evt) {
+      drawLineGraphicLayer.on("click", function(evt) {
         if ($("#draw-line-container").css("display") == "none") {
           return;
         }
@@ -130,35 +123,8 @@ $(document).ready(function () {
         var convertedClr = rgbToHex(sym.color.r, sym.color.g, sym.color.b);
         $("#line-colorSelector div").css("background-color", convertedClr);
         $("#line-style div svg").removeClass('selected-line-symbol');
-        $("#line-style div[title='" + linePreviewSVG.slsTitleMapping[sym.style] + "'] svg").addClass('selected-line-symbol');
+        $("#line-style div[title='"+ linePreviewSVG.slsTitleMapping[sym.style] +"'] svg").addClass('selected-line-symbol');
         setLinePreview("layerKlik")
-      });
-
-      drawPolygonGraphicLayer.on("click", function(evt) {
-        if ($("#draw-polygon-container").css("display") == "none") {
-          return;
-        }
-
-        var polygraf = evt.graphic;
-        $("#delete-draw-polygon").show();
-        activateLineEditTB(polygraf);
-        var sym = polygraf.symbol;
-        $("#polygon-line-size").val(sym.outline.width);
-        var convertedClr = rgbToHex(sym.outline.color.r, sym.outline.color.g, sym.outline.color.b);
-        $("#polygon-outline-colorSelector div").css("background-color", convertedClr);
-        $("#polygon-outline-style div[title='" + linePreviewSVG.slsTitleMapping[sym.outline.style] + "'] svg").addClass('selected-polygon-outline-symbol');
-        if(!sym.style && sym.url) {
-          $("#polygon-style").val("picture");
-          $("#polygon-fill-img-preview").empty();
-          $("#polygon-fill-img-preview").append('<img src="'+ sym.url +'" alt="Fill Image" style="width: 25px; height: 25px;">');
-        } else {
-          $("#polygon-style").val(polygonSymbolConfig.retrieveMapping[sym.style]);
-          $("#polygon-colorSelector div").css("background-color", rgbToHex(sym.color.r, sym.color.g, sym.color.b));
-          $("#poly-fill-transp-slider").val(sym.color.a * 100);
-          $("#poly-trans-input").val(sym.color.a * 100);
-        }
-        $("#polygon-style").trigger("change");
-        polygonEditGrafic = evt.graphic;
       });
 
       function rgbToHex(r, g, b) {
@@ -176,10 +142,9 @@ $(document).ready(function () {
         if (evt.graphic) {
           return;
         }
-        $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line, #delete-draw-polygon").hide();
+        $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line").hide();
         editToolBar.deactivate();
         lineEditGrafic = undefined;
-        polygonEditGrafic = undefined;
       });
 
       bmFPSymbol = new SimpleFillSymbol(
@@ -196,7 +161,6 @@ $(document).ready(function () {
 
       loadSessionPtGraficData()
       loadSessionLineGraficData()
-      loadSessionPolygonGraficData()
       loadSessionBMData();
       function loadSessionBMData() {
         if (!sessionBMData) {
@@ -282,35 +246,6 @@ $(document).ready(function () {
         });
       }
 
-      function loadSessionPolygonGraficData() {
-        if(!sessionPolygonGraphicData)
-          return;
-
-        var allptgrafDets = JSON.parse(sessionPolygonGraphicData);
-        Object.keys(allptgrafDets).forEach(function (apolygon) {
-          var agrfdets = allptgrafDets[apolygon];
-          var geom = agrfdets.geometry;
-          var sym = agrfdets.symbol;
-          var outline = new SimpleLineSymbol({
-            type: "esriSLS",
-            style: linePreviewSVG.slsRetrieveMapping[sym.outline.style]
-          });
-          outline.setWidth(sym.outline.width);
-          outline.setColor(new Color(sym.outline.color));
-          if(sym.type == "picturefillsymbol") {
-            var grafsym = new SimpleFillSymbol({
-              "type": "esriSFS",
-              "style": polygonSymbolConfig.retrieveMapping[sym.style]
-            });
-            grafsym.setColor(new Color(sym.color));
-            grafsym.setOutline(outline);
-          } else {
-            var grafsym = new PictureFillSymbol(sym.url, outline, 20, 20);
-          }
-          drawPolygonGraphicLayer.add(new Graphic(new Polygon(geom), grafsym));
-        });
-      }
-
       function addGraphic(evt) {
         drawToolBar.deactivate();
         switch (evt.geometry.type) {
@@ -326,9 +261,6 @@ $(document).ready(function () {
             break;
           case "polyline":
             drawLineGraphicLayer.add(new Graphic(evt.geometry, drawGraphicSymbol));
-            break;
-          case "polygon":
-            drawPolygonGraphicLayer.add(new Graphic(new Polygon(evt.geometry), drawGraphicSymbol));
             break;
           default:
         }
@@ -656,8 +588,6 @@ $(document).ready(function () {
 
       initiateColorPicker("pt-colorSelector");
       initiateColorPicker("line-colorSelector");
-      initiateColorPicker("polygon-colorSelector");
-      initiateColorPicker("polygon-outline-colorSelector");
       function initiateColorPicker(id) {
         $('#' + id).ColorPicker({
           color: '#0000ff',
@@ -670,46 +600,13 @@ $(document).ready(function () {
             return false;
           },
           onChange: function (hsb, hex, rgb) {
-            switch (id) {
-              case "pt-colorSelector":
-                ptSelectorChange(hex);
-                break;
-              case "line-colorSelector":
-                lineSelectorChange(hex);
-                break;
-              case "polygon-colorSelector":
-                polygonSelectorChange(hex);
-                break;
-              case "polygon-outline-colorSelector":
-                polygonOutlineSelectorChange(hex);
-                break;
-              default:
+            if (id == "pt-colorSelector") {
+              ptSelectorChange(hex)
+            } else {
+              lineSelectorChange(hex);
             }
           }
         });
-      }
-
-      function polygonSelectorChange(hex) {
-        $('#polygon-colorSelector div').css('backgroundColor', '#' + hex);
-        redrawGraphicPolygon();
-      }
-
-      function polygonOutlineSelectorChange(hex) {
-        $('#polygon-outline-colorSelector div').css('backgroundColor', '#' + hex);
-        redrawGraphicPolygon();
-      }
-
-      function redrawGraphicPolygon() {
-        if(!polygonEditGrafic) {
-          return;
-        }
-        drawPolygonGraphicLayer.remove(polygonEditGrafic);
-        createSFS();
-        var graf = new Graphic(new Polygon(polygonEditGrafic.geometry), drawGraphicSymbol);
-        editToolBar.deactivate();
-        polygonEditGrafic = graf;
-        drawPolygonGraphicLayer.add(polygonEditGrafic);
-        activateLineEditTB(polygonEditGrafic);
       }
 
       function ptSelectorChange(hex) {
@@ -726,14 +623,12 @@ $(document).ready(function () {
         drawLineGraphicLayer.remove(lineEditGrafic);
         createSLS();
         var graf = new Graphic(new Polyline(lineEditGrafic.geometry), drawGraphicSymbol);
-        editToolBar.deactivate();
         lineEditGrafic = graf;
-        drawLineGraphicLayer.add(lineEditGrafic);
         activateLineEditTB(lineEditGrafic);
+        drawLineGraphicLayer.add(graf);
       }
 
       $("#pt-size, #pt-angle").on("change", setPointPreview)
-      $("#pt-size, #pt-angle").on("mousewheel", setPointPreview)
 
       $("#pt-style div").click(function () {
         $("#pt-style div").removeClass("selected-pt-symbol");
@@ -760,8 +655,7 @@ $(document).ready(function () {
         }
       }
 
-      $("#line-size").on("change", setLinePreview);
-      $('#line-size').on("mousewheel", setLinePreview);
+      $("#line-size").on("change",         setLinePreview);
       $("#line-style div[title='Solid'] svg").trigger("click");
       function setLinePreview(hint) {
         var selectedStyle = $(".selected-line-symbol")
@@ -769,7 +663,7 @@ $(document).ready(function () {
         $("#line-symbol-preview").append(linePreviewSVG[selectedStyle.parent('div').prop("title")]);
         $("#line-symbol-preview svg path").css("stroke", $("#line-colorSelector div").css("background-color"));
         $("#line-symbol-preview svg path").css("stroke-width", $("#line-size").val());
-        if (lineEditGrafic && hint != "layerKlik") {
+        if(lineEditGrafic && !hint) {
           redrawGraphicLine();
         }
       }
@@ -812,7 +706,6 @@ $(document).ready(function () {
       $("#save-draw-line").click(function () {
         saveGraficData(drawLineGraphicLayer, "line-graphic-data");
         lineEditGrafic = undefined;
-        polygonEditGrafic = undefined;
       });
 
       function saveGraficData(lay, sessionKey) {
@@ -827,11 +720,11 @@ $(document).ready(function () {
 
         var graf = JSON.stringify(stringGraphics);
         localStorage.setItem(sessionKey, graf);
-        $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line, #delete-draw-polygon").hide();
+        $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line").hide();
         editToolBar.deactivate();
         alertify.success("Graphics stored successfully");
       }
-      $("#delete-draw-line").click(function () {
+      $("#delete-draw-line").click(function() {
         deleteGraphics(lineEditGrafic, drawLineGraphicLayer);
         lineEditGrafic = undefined;
       });
@@ -845,214 +738,8 @@ $(document).ready(function () {
         graf = undefined;
         map.graphics.clear();
         editToolBar.deactivate();
-        $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line, #delete-draw-polygon").hide();
+        $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line").hide();
         alertify.success("Graphics deleted successfully");
       }
-
-      var drawBtnsContainerMap = {
-        "draw-point-btn": "draw-point-container",
-        "draw-line-btn": "draw-line-container",
-        "draw-polyline-btn": "draw-line-container",
-        "draw-freehand-polyline-btn": "draw-line-container",
-        "draw-polygon-triangle-btn": "draw-polygon-container",
-        "draw-polygon-rectangle-btn": "draw-polygon-container",
-        "draw-polygon-circle-btn": "draw-polygon-container",
-        "draw-polygon-ellipse-btn": "draw-polygon-container",
-        "draw-polygon-btn": "draw-polygon-container",
-        "draw-freehand-polygon-btn": "draw-polygon-container"
-      }
-      var drawLineBtns = {
-        "draw-line-btn": "draw-line",
-        "draw-polyline-btn": "draw-polyline",
-        "draw-freehand-polyline-btn": "draw-freehand-polyline",
-        "draw-polygon-triangle-btn": "draw-polygon-triangle",
-        "draw-polygon-rectangle-btn": "draw-polygon-rectangle",
-        "draw-polygon-circle-btn": "draw-polygon-circle",
-        "draw-polygon-ellipse-btn": "draw-polygon-ellipse",
-        "draw-polygon-btn": "draw-polygon",
-        "draw-freehand-polygon-btn": "draw-freehand-polygon",
-      }
-      var allineBtns = ["draw-line", "draw-polyline", "draw-freehand-polyline"];
-      var alpolygonBtns = ["draw-polygon", "draw-freehand-polygon", "draw-polygon-triangle", "draw-polygon-rectangle", "draw-polygon-circle", "draw-polygon-ellipse"];
-      $(".draw-buttons").click(function () {
-        $("#draw-buttons-container").hide();
-        $(".draw-go-2-back").css("display", "flex");
-        $("#draw-options-container").show();
-        $("#draw-options-container .draw-mode-inner").hide();
-        $("#draw-option-header").text($(this).children("span").text());
-        $("#" + drawBtnsContainerMap[$(this).prop("id")]).show();
-        makeDrawBtnsVisible($(this).prop("id"));
-      });
-
-      function makeDrawBtnsVisible(containerID) {
-        allineBtns.forEach(function (aid) {
-          $("#" + aid).hide();
-        });
-        $("#" + drawLineBtns[containerID]).show();
-        alpolygonBtns.forEach(function (aid) {
-          $("#" + aid).hide();
-        });
-        $("#" + drawLineBtns[containerID]).show();
-      }
-
-      $(".draw-back-btn").click(function () {
-        $("#draw-buttons-container").show();
-        $(".draw-go-2-back").hide();
-        $("#draw-options-container").hide();
-        $("#draw-options-container .draw-mode-inner").show();
-      });
-
-      $("#polygon-outline-style div").click(function () {
-        $("#polygon-outline-style div svg").removeClass("selected-polygon-outline-symbol");
-        $(this).children('svg').addClass("selected-polygon-outline-symbol");
-        redrawGraphicPolygon();
-      });
-
-      $("#polygon-style").on("change", function () {
-        var selectedStyle = $("#polygon-style").val();
-        if (selectedStyle == "picture") {
-          $("#polygon-pic-fill").css("display", "flex");
-          $("#polygon-color").hide();
-          $("#polygon-opacity").hide();
-        } else if (selectedStyle == "esriSFSSolid") {
-          $("#polygon-color").css("display", "flex");
-          $("#polygon-opacity").css("display", "flex");
-          $("#polygon-pic-fill").hide()
-        } else {
-          $("#polygon-color").hide();
-          $("#polygon-opacity").hide();
-          $("#polygon-pic-fill").hide()
-        }
-        redrawGraphicPolygon();
-      });
-
-      $("#poly-fill-transp-slider").change(function () {
-        $("#poly-trans-input").val($("#poly-fill-transp-slider").val());
-        redrawGraphicPolygon();
-      });
-
-      $('#poly-trans-input').change(function () {
-        var transp = $('#poly-trans-input').val();
-        if (transp > 100) {
-          $('#poly-trans-input').val(100)
-        }
-        $("#poly-fill-transp-slider").val(transp);
-      });
-
-      $('#poly-trans-input').keypress(function (e) {
-        var transp = $('#poly-trans-input').val();
-        var key = e.which;
-        if (key == 13)  // the enter key code
-        {
-          if (transp > 100) {
-            $('#poly-trans-input').val(100)
-          }
-          $("#poly-fill-transp-slider").val(transp);
-        }
-      });
-
-      $("#draw-polygon-triangle").click(function () {
-        createSFS();
-        drawToolBar.activate("triangle")
-      });
-
-      $("#draw-polygon-rectangle").click(function () {
-        createSFS();
-        drawToolBar.activate("extent")
-      });
-
-      $("#draw-polygon-circle").click(function () {
-        createSFS();
-        drawToolBar.activate("Circle")
-      });
-
-      $("#draw-polygon-ellipse").click(function () {
-        createSFS();
-        drawToolBar.activate("ellipse")
-      });
-
-      $("#draw-polygon").click(function () {
-        createSFS();
-        drawToolBar.activate("polygon")
-      });
-
-      $("#draw-freehand-polygon").click(function () {
-        createSFS();
-        drawToolBar.activate("freehandpolygon")
-      });
-
-      $("#polygon-line-size").on("change", redrawGraphicPolygon);
-      $("#polygon-line-size").on("mousewheel", redrawGraphicPolygon);
-
-      function createSFS() {
-        var style = $("#polygon-style").val();
-        var fillcolr = getSymColor("polygon-colorSelector");
-        fillcolr.push(parseInt($("#poly-fill-transp-slider").val()) / 100);
-        var sfs;
-        var outlineStyle = $(".selected-polygon-outline-symbol").parent('div').prop("title");
-        var outlinecolr = getSymColor("polygon-outline-colorSelector");
-        var outlinesym = new SimpleLineSymbol({
-          "type": "esriSLS",
-          "style": linePreviewSVG.slsMapping[outlineStyle]
-        });
-        outlinesym.setColor(new Color(outlinecolr));
-        outlinesym.setWidth(parseInt($("#polygon-line-size").val()));
-        
-        if (style == "picture") {
-          var file = $("#draw-polygon-picture").prop("files")[0];
-          if(file) {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function (event) {
-              sfs = new PictureFillSymbol(reader.result, outlinesym, 20, 20)
-              drawGraphicSymbol = sfs;
-            };
-          } else {
-            if(polygonEditGrafic.symbol.url) {
-              sfs = new PictureFillSymbol(polygonEditGrafic.symbol.url, outlinesym, 20, 20)
-              drawGraphicSymbol = sfs;
-            } else if($("#polygon-fill-img-preview img").prop("src")) {
-              sfs = new PictureFillSymbol($("#polygon-fill-img-preview img").prop("src"), outlinesym, 20, 20)
-              drawGraphicSymbol = sfs;
-            }
-          }
-        } else {
-          sfs = new SimpleFillSymbol({
-            "type": "esriSFS",
-            "style": $("#polygon-style").val()
-          });
-          sfs.setColor(new Color(fillcolr));
-          sfs.setOutline(outlinesym);
-          drawGraphicSymbol = sfs;
-        }
-      }
-
-      $("#draw-polygon-picture").change(function() {
-        var file = $("#draw-polygon-picture").prop("files")[0];
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = function (event) {
-          $("#polygon-fill-img-preview").empty();
-          $("#polygon-fill-img-preview").append('<img src="'+ reader.result +'" alt="Fill Image" style="width: 25px; height: 25px;">');
-          redrawGraphicPolygon();
-        };
-      });
-
-      $("#save-draw-polygon").click(function () {
-        saveGraficData(drawPolygonGraphicLayer, "polygon-graphic-data");
-        polygonEditGrafic = undefined;
-      });
-
-      $("#delete-draw-polygon").click(function() {
-        deleteGraphics(polygonEditGrafic, drawPolygonGraphicLayer);
-        polygonEditGrafic = undefined;
-      });
-
-      $("#clear-polygon-pic-selection").click(function () {
-        $("#draw-polygon-picture").empty();
-        $("#draw-polygon-picture").text("or drag and drop files here");
-        $("#draw-point-picture").val("");
-      });
-
     });
 });

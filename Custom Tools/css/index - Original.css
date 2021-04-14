@@ -51,9 +51,9 @@ html, body, .page-container {
 
 .all-tool-content {
   height: calc(100% - 10vh);
-  width: calc(100% - 10px);
+  width: calc(100% - 20px);
   overflow: hidden;
-  padding: 5px;
+  padding: 10px;
 }
 
 .side-nav-header {
@@ -223,7 +223,7 @@ ul.draw-point-tabs {
   margin: 0px;
   padding: 0px;
   list-style: none;
-  height: 7vh;
+  height: 9vh;
 }
 
 ul.draw-point-tabs li {
@@ -242,9 +242,8 @@ ul.draw-point-tabs li.draw-current {
 .draw-point-tab-content {
   display: none;
   background: #ededed;
-  padding: 5px;
-  height: calc(100% - 7vh - 10px);
-  border-radius: 4px;
+  padding: 15px;
+  height: calc(100% - 9vh - 30px);
 }
 
 .draw-point-tab-content.draw-current {
@@ -307,7 +306,7 @@ ul.draw-point-tabs li.draw-current {
   align-items: center;
 }
 
-#clear-pt-pic-selection, #clear-polygon-pic-selection {
+#clear-pt-pic-selection {
   height: 5vh;
   background: #b31011;
   outline: none;
@@ -322,7 +321,7 @@ ul.draw-point-tabs li.draw-current {
 }
 
 .draw-pt-opts {
-  padding: 10px 15px;
+  padding: 15px;
   align-items: center;
   width: calc(100% - 30px);
   justify-content: space-around;
@@ -340,7 +339,8 @@ ul.draw-point-tabs li.draw-current {
   cursor: pointer;
 }
 
-#save-draw-points, #save-sym-draw-points, #save-draw-line, #save-draw-polygon {
+#save-draw-points, #save-sym-draw-points,
+#save-draw-line {
   background: #015b21;
 }
 
@@ -348,20 +348,22 @@ ul.draw-point-tabs li.draw-current {
   font-size: 10px;
 }
 
-#draw-point-deactivate, #draw-sym-point-deactivate, #draw-line-deactivate, #draw-polygon-deactivate {
+#draw-point-deactivate, #draw-sym-point-deactivate,
+#draw-line-deactivate, #draw-polygon-deactivate {
   background: #9c9702;
 }
 
-#delete-draw-points, #delete-sym-draw-points, #delete-draw-line, #delete-draw-polygon {
+#delete-draw-points, #delete-sym-draw-points,
+#delete-draw-line {
   background: #9c0202;
   display: none;
 }
 
-.pt-color-label, #pt-style, #polygon-outline-style {
+.pt-color-label, #pt-style {
   display: flex !important;
 }
 
-#pt-colorSelector div, #line-colorSelector div, #polygon-colorSelector div, #polygon-outline-colorSelector div {
+#pt-colorSelector div, #line-colorSelector div {
   background-color: rgb(40, 40, 133);
   width: 100%;
   height: 32px;
@@ -369,9 +371,8 @@ ul.draw-point-tabs li.draw-current {
   cursor: pointer;
 }
 
-#pt-style, #line-style, #polygon-outline-style {
-  height: 36px;
-  width: 60.5%;
+#pt-style, #line-style {
+  height: 100px;
   background: white;
   padding: 6px;
   overflow: auto;
@@ -379,24 +380,21 @@ ul.draw-point-tabs li.draw-current {
   justify-content: space-around;
   font-size: 30px;
   flex-flow: wrap;
-  border-radius: 3px;
-  border: 1px solid #C2C2C2;
 }
 
-#pt-style div, #line-style div, #polygon-outline-style div {
+#pt-style div, #line-style div {
   padding: 6px;
-  width: 22px;
-  height: 22px;
+  width: 46px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
 }
 
-#line-style div, #line-style div, #polygon-outline-style div {
+#line-style div {
   width: auto;
   height: auto;
-  padding: 0;
 }
 
 #pt-style div#pt-diamond .fa-square {
@@ -404,7 +402,7 @@ ul.draw-point-tabs li.draw-current {
 }
 
 #pt-style div[title="Triangle"] .fa-caret-up {
-  font-size: 40px;
+  font-size: 50px;
 }
 
 #pt-style div[title="Circle"], #pt-style div[title="Square"], #pt-style div[title="Diamond"] {
@@ -417,11 +415,11 @@ ul.draw-point-tabs li.draw-current {
   cursor: pointer;
 }
 
-#line-style div svg:hover path, #polygon-outline-style div svg:hover path, .selected-line-symbol path, .selected-polygon-outline-symbol path {
+#line-style div svg:hover path, .selected-line-symbol path {
   stroke: white;
 }
 
-#line-style div svg:hover, .selected-line-symbol, #polygon-outline-style div svg:hover, .selected-polygon-outline-symbol {
+#line-style div svg:hover, .selected-line-symbol {
   background: #01015b;
   border-radius: 4px;
   cursor: pointer;
@@ -440,7 +438,8 @@ ul.draw-point-tabs li.draw-current {
 }
 
 #line-style {
-  width: 60.5%;
+  width: 55%;
+  padding: 12px;
   border-radius: 4px;
 }
 
@@ -452,15 +451,15 @@ ul.draw-point-tabs li.draw-current {
 }
 
 #draw-line {
-  background-image: url(../images/draw_line.png);
+  background-image: url(../images/draw_line_1.png);
 }
 
 #draw-polyline {
-  background-image: url(../images/draw_polyline.png);
+  background-image: url(../images/draw_polyline_1.png);
 }
 
 #draw-freehand-polyline {
-  background-image: url(../images/draw_freehand_polyline.png);
+  background-image: url(../images/draw_freehand_polyline_1.png);
 }
 
 .line-btns {
@@ -471,167 +470,4 @@ ul.draw-point-tabs li.draw-current {
 
 .line-draw-opts {
   padding: 0 15px 15px 15px;
-}
-
-#draw-buttons-container {
-  height: 73%;
-  width: 100%;
-  display: inline-flex;
-  transition: 0.5s;
-  flex-direction: row;
-  flex-flow: wrap;
-  justify-content: space-around;
-}
-
-#draw-options-container {
-  display: none;
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  transition: 0.5s;
-}
-
-#draw-options-container .draw-mode-inner {
-  margin-top: 5px;
-  display: none;
-  height: calc(100% - 17px);
-}
-
-.draw-buttons {
-  display: flex;
-  justify-content: center;
-  width: 6vw;
-  background: #01015b;
-  flex-direction: column;
-  text-align: center;
-  height: 16vh;
-  align-items: center;
-  color: white;
-  border-radius: 12px;
-  cursor: pointer;
-}
-
-.draw-buttons:hover {
-  background: #01015f;
-}
-
-.last-row-draw-btns {
-  display: flex;
-  justify-content: space-between;
-  width: 72%;
-}
-
-.draw-go-2-back {
-  display: flex;
-}
-
-.draw-go-2-back {
-  display: none;
-}
-
-.draw-back-btn {
-  width: 50px;
-  padding: 6px;
-  background: #01015b;
-  color: white;
-  cursor: pointer;
-}
-
-.draw-back-btn:hover {
-  background: #08086b;
-}
-
-.draw-opt-header {
-  width: calc(100% - 50px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: white;
-}
-
-#polygon-pic-fill {
-  display: none;
-  margin: 15px;
-}
-
-#draw-polygon {
-  background-image: url(../images/draw_polygon.png);
-}
-
-#draw-freehand-polygon {
-  background-image: url(../images/draw_freehand_polygon.png);
-}
-
-#draw-polygon-triangle {
-  background-image: url(../images/draw_polygon_triangle.png);
-}
-
-#draw-polygon-rectangle {
-  background-image: url(../images/draw_polygon_rectangle.png);
-}
-
-#draw-polygon-circle {
-  background-image: url(../images/draw_polygon_circle.png);
-}
-
-#draw-polygon-ellipse {
-  background-image: url(../images/draw_polygon_ellipse.png);
-}
-
-#draw-polygon-container {
-  margin-top: 12px !important;
-}
-
-.polygon-fill-opacity-slider {
-  -webkit-appearance: none;
-  width: 78%;
-  height: 12px;
-  background: white;
-  outline: none;
-  opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
-  border-radius: 12px;
-}
-
-.polygon-fill-opacity-slider:hover {
-  opacity: 1;
-}
-
-.polygon-fill-opacity-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 12px;
-  background: #01015b;
-  cursor: pointer;
-}
-
-.polygon-fill-opacity-slider::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
-  border-radius: 12px;
-  background: #01015b;
-  cursor: pointer;
-}
-
-.poly-trans-container {
-  display: flex;
-  width: 64%;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.trans-inp {
-  width: 11%;
-  height: 25px;
-  border-radius: 4px;
-  border: 1px solid #C2C2C2;
-  padding-left: 6px;
-}
-
-#polygon-color, #polygon-opacity {
-  display: none;
 }

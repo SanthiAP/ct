@@ -1,0 +1,12 @@
+var polygonSymbolMapping = {
+  "retrieveMapping": {
+    "solid": "esriSFSSolid",
+    "backwarddiagonal": "esriSFSBackwardDiagonal",
+    "cross": "esriSFSCross",
+    "diagonalcross": "esriSFSDiagonalCross",
+    "forwarddiagonal": "esriSFSForwardDiagonal",
+    "horizontal": "esriSFSHorizontal",
+    "none": "esriSFSNull",
+    "vertical": "esriSFSVertical"
+  }
+}
