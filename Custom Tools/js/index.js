@@ -1,10 +1,10 @@
 $(document).ready(function () {
   var map, bmFPLayer, bmFPSymbol, bmFPLabel;
   var drawGraphicSymbol;
-  var drawPointGraphicLayer, drawLineGraphicLayer, drawPolygonGraphicLayer;
+  var drawPointGraphicLayer, drawLineGraphicLayer, drawPolygonGraphicLayer, drawTextGraphicLayer;
   var drawToolBar, editToolBar;
   var pointDeleteGrafic;
-  var lineEditGrafic, polygonEditGrafic;
+  var lineEditGrafic, polygonEditGrafic, textEditGrafic;
   const nullArray = ["", undefined, null, NaN];
   var bookmarks = {};
   var linePreviewSVG = lineSVG;
@@ -29,6 +29,7 @@ $(document).ready(function () {
   var sessionPointGraphicData = localStorage.getItem("point-graphic-data");
   var sessionLineGraphicData = localStorage.getItem("line-graphic-data");
   var sessionPolygonGraphicData = localStorage.getItem("polygon-graphic-data");
+  var sessionTextGraphicData = localStorage.getItem("text-graphic-data");
   // var bmscroll = new PerfectScrollbar(".bm-content-container");
   var titleMapping = {
     "tool-bm": "BookMark",
@@ -95,7 +96,11 @@ $(document).ready(function () {
         "id": "polygonGraphicLayer"
       });
 
-      map.addLayers([drawPointGraphicLayer, drawLineGraphicLayer, bmFPLabel, bmFPLayer, drawPolygonGraphicLayer]);
+      drawTextGraphicLayer = new GraphicsLayer({
+        "id": "textGraphicLayer"
+      });
+
+      map.addLayers([drawPointGraphicLayer, drawTextGraphicLayer, drawLineGraphicLayer, bmFPLabel, bmFPLayer, drawPolygonGraphicLayer]);
 
       var pointDeleteHighlight = new SimpleFillSymbol(
         "solid",
@@ -134,7 +139,7 @@ $(document).ready(function () {
         setLinePreview("layerKlik")
       });
 
-      drawPolygonGraphicLayer.on("click", function(evt) {
+      drawPolygonGraphicLayer.on("click", function (evt) {
         if ($("#draw-polygon-container").css("display") == "none") {
           return;
         }
@@ -147,10 +152,10 @@ $(document).ready(function () {
         var convertedClr = rgbToHex(sym.outline.color.r, sym.outline.color.g, sym.outline.color.b);
         $("#polygon-outline-colorSelector div").css("background-color", convertedClr);
         $("#polygon-outline-style div[title='" + linePreviewSVG.slsTitleMapping[sym.outline.style] + "'] svg").addClass('selected-polygon-outline-symbol');
-        if(!sym.style && sym.url) {
+        if (!sym.style && sym.url) {
           $("#polygon-style").val("picture");
           $("#polygon-fill-img-preview").empty();
-          $("#polygon-fill-img-preview").append('<img src="'+ sym.url +'" alt="Fill Image" style="width: 25px; height: 25px;">');
+          $("#polygon-fill-img-preview").append('<img src="' + sym.url + '" alt="Fill Image" style="width: 25px; height: 25px;">');
         } else {
           $("#polygon-style").val(polygonSymbolConfig.retrieveMapping[sym.style]);
           $("#polygon-colorSelector div").css("background-color", rgbToHex(sym.color.r, sym.color.g, sym.color.b));
@@ -161,8 +166,41 @@ $(document).ready(function () {
         polygonEditGrafic = evt.graphic;
       });
 
+      drawTextGraphicLayer.on("click", function(evt) {
+        if ($("#draw-text-container").css("display") == "none") {
+          return;
+        }
+
+        textEditGrafic = evt.graphic;
+        $("#delete-draw-text").show();
+        activateTextEditTB(textEditGrafic);
+        var sym = textEditGrafic.symbol;
+        $("#text-text").val(sym.text);
+        var convertedClr = rgbToHex(sym.color.r, sym.color.g, sym.color.b);
+        $("#text-colorSelector div").css("background-color", convertedClr);
+        $("#text-hori-alignment").val(sym.horizontalAlignment);
+        $("#text-vert-alignment").val(sym.verticalAlignment);
+        $("#text-angle").val(sym.angle);
+        if(sym.haloColor) {
+          var halocolor = sym.haloColor;
+          $("#text-halo-width").val(sym.haloSize);
+          $("#text-halo-colorSelector div").css("background-color", rgbToHex(halocolor.r, halocolor.g, halocolor.b));
+        }
+        var ft = sym.font;
+        $("#text-family").val(ft.family);
+        $("#text-font-size").val(ft.size);
+        $("#text-font-style").val(ft.style);
+        $("#text-font-weight").val(ft.weight);
+        $("#text-font-decoration").val(ft.decoration);
+        redrawGraphicText()
+      })
+
       function rgbToHex(r, g, b) {
         return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+      }
+
+      function activateTextEditTB(graf) {
+        editToolBar.activate(Edit.MOVE | Edit.ROTATE, graf);
       }
 
       function activateLineEditTB(graf) {
@@ -197,6 +235,7 @@ $(document).ready(function () {
       loadSessionPtGraficData()
       loadSessionLineGraficData()
       loadSessionPolygonGraficData()
+      loadSessionTextGraficData()
       loadSessionBMData();
       function loadSessionBMData() {
         if (!sessionBMData) {
@@ -283,7 +322,7 @@ $(document).ready(function () {
       }
 
       function loadSessionPolygonGraficData() {
-        if(!sessionPolygonGraphicData)
+        if (!sessionPolygonGraphicData)
           return;
 
         var allptgrafDets = JSON.parse(sessionPolygonGraphicData);
@@ -297,7 +336,7 @@ $(document).ready(function () {
           });
           outline.setWidth(sym.outline.width);
           outline.setColor(new Color(sym.outline.color));
-          if(sym.type == "picturefillsymbol") {
+          if (sym.type == "simplefillsymbol") {
             var grafsym = new SimpleFillSymbol({
               "type": "esriSFS",
               "style": polygonSymbolConfig.retrieveMapping[sym.style]
@@ -311,11 +350,48 @@ $(document).ready(function () {
         });
       }
 
+      function loadSessionTextGraficData() {
+        if (!sessionTextGraphicData)
+        return;
+
+      var allptgrafDets = JSON.parse(sessionTextGraphicData);
+      Object.keys(allptgrafDets).forEach(function (atext) {
+        var agrfdets = allptgrafDets[atext];
+        var geom = agrfdets.geometry;
+        var sym = agrfdets.symbol;
+        var font = new Font({
+          "family" : sym.font.family,
+          "style" : sym.font.style,
+          "weight" : sym.font.weight,
+          "decoration" : sym.font.decoration
+        });
+        font.setSize(parseInt(sym.font.size)+"pt");
+        var grafsym = new TextSymbol({
+          "type" : "esriTS",
+          "color" : new Color(sym.color),
+          "verticalAlignment" : sym.verticalAlignment,
+          "horizontalAlignment" : sym.horizontalAlignment,
+          "text" : sym.text
+        });
+        grafsym.setFont(font);
+        grafsym.setAngle(parseInt(sym.angle));
+        if(sym.haloSize) {
+          grafsym.setHaloColor(new Color(sym.haloColor));
+          grafsym.setHaloSize(parseInt(sym.haloSize));
+        }
+        drawTextGraphicLayer.add(new Graphic(new Point(geom), grafsym));
+      });
+      }
+
       function addGraphic(evt) {
         drawToolBar.deactivate();
         switch (evt.geometry.type) {
           case "point":
-            drawPointGraphicLayer.add(new Graphic(evt.geometry, drawGraphicSymbol));
+            if(drawGraphicSymbol.type == "textsymbol") {
+              drawTextGraphicLayer.add(new Graphic(evt.geometry, drawGraphicSymbol));
+            } else {
+              drawPointGraphicLayer.add(new Graphic(evt.geometry, drawGraphicSymbol));
+            }
             break;
           case "multipoint":
             var points = evt.geometry.points;
@@ -642,7 +718,7 @@ $(document).ready(function () {
         };
       }
 
-      $("#draw-point-deactivate, #draw-sym-point-deactivate, #draw-line-deactivate, #draw-polygon-deactivate").click(function () {
+      $("#draw-point-deactivate, #draw-sym-point-deactivate, #draw-line-deactivate, #draw-polygon-deactivate, #draw-text-deactivate").click(function () {
         drawToolBar.deactivate();
       });
 
@@ -658,6 +734,8 @@ $(document).ready(function () {
       initiateColorPicker("line-colorSelector");
       initiateColorPicker("polygon-colorSelector");
       initiateColorPicker("polygon-outline-colorSelector");
+      initiateColorPicker("text-colorSelector");
+      initiateColorPicker("text-halo-colorSelector");
       function initiateColorPicker(id) {
         $('#' + id).ColorPicker({
           color: '#0000ff',
@@ -683,6 +761,12 @@ $(document).ready(function () {
               case "polygon-outline-colorSelector":
                 polygonOutlineSelectorChange(hex);
                 break;
+              case "text-colorSelector":
+                textSelectorChange(hex);
+                break;
+              case "text-halo-colorSelector":
+                textHaloSelectorChange(hex);
+                break;
               default:
             }
           }
@@ -693,14 +777,24 @@ $(document).ready(function () {
         $('#polygon-colorSelector div').css('backgroundColor', '#' + hex);
         redrawGraphicPolygon();
       }
-
+      
       function polygonOutlineSelectorChange(hex) {
         $('#polygon-outline-colorSelector div').css('backgroundColor', '#' + hex);
         redrawGraphicPolygon();
       }
 
+      function textSelectorChange(hex) {
+        $('#text-colorSelector div').css('backgroundColor', '#' + hex);
+        redrawGraphicText()
+      }
+
+      function textHaloSelectorChange(hex) {
+        $('#text-halo-colorSelector div').css('backgroundColor', '#' + hex);
+        redrawGraphicText()
+      }
+
       function redrawGraphicPolygon() {
-        if(!polygonEditGrafic) {
+        if (!polygonEditGrafic) {
           return;
         }
         drawPolygonGraphicLayer.remove(polygonEditGrafic);
@@ -710,6 +804,19 @@ $(document).ready(function () {
         polygonEditGrafic = graf;
         drawPolygonGraphicLayer.add(polygonEditGrafic);
         activateLineEditTB(polygonEditGrafic);
+      }
+
+      function redrawGraphicText() {
+        if (!textEditGrafic) {
+          return;
+        }
+        drawTextGraphicLayer.remove(textEditGrafic);
+        createTS();
+        var graf = new Graphic(new Point(textEditGrafic.geometry), drawGraphicSymbol);
+        editToolBar.deactivate();
+        textEditGrafic = graf;
+        drawTextGraphicLayer.add(textEditGrafic);
+        activateTextEditTB(textEditGrafic);
       }
 
       function ptSelectorChange(hex) {
@@ -845,7 +952,7 @@ $(document).ready(function () {
         graf = undefined;
         map.graphics.clear();
         editToolBar.deactivate();
-        $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line, #delete-draw-polygon").hide();
+        $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line, #delete-draw-polygon, #delete-draw-text").hide();
         alertify.success("Graphics deleted successfully");
       }
 
@@ -859,7 +966,8 @@ $(document).ready(function () {
         "draw-polygon-circle-btn": "draw-polygon-container",
         "draw-polygon-ellipse-btn": "draw-polygon-container",
         "draw-polygon-btn": "draw-polygon-container",
-        "draw-freehand-polygon-btn": "draw-polygon-container"
+        "draw-freehand-polygon-btn": "draw-polygon-container",
+        "draw-text-btn": "draw-text-container"
       }
       var drawLineBtns = {
         "draw-line-btn": "draw-line",
@@ -997,10 +1105,10 @@ $(document).ready(function () {
         });
         outlinesym.setColor(new Color(outlinecolr));
         outlinesym.setWidth(parseInt($("#polygon-line-size").val()));
-        
+
         if (style == "picture") {
           var file = $("#draw-polygon-picture").prop("files")[0];
-          if(file) {
+          if (file) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = function (event) {
@@ -1008,10 +1116,10 @@ $(document).ready(function () {
               drawGraphicSymbol = sfs;
             };
           } else {
-            if(polygonEditGrafic.symbol.url) {
+            if (polygonEditGrafic.symbol.url) {
               sfs = new PictureFillSymbol(polygonEditGrafic.symbol.url, outlinesym, 20, 20)
               drawGraphicSymbol = sfs;
-            } else if($("#polygon-fill-img-preview img").prop("src")) {
+            } else if ($("#polygon-fill-img-preview img").prop("src")) {
               sfs = new PictureFillSymbol($("#polygon-fill-img-preview img").prop("src"), outlinesym, 20, 20)
               drawGraphicSymbol = sfs;
             }
@@ -1027,13 +1135,13 @@ $(document).ready(function () {
         }
       }
 
-      $("#draw-polygon-picture").change(function() {
+      $("#draw-polygon-picture").change(function () {
         var file = $("#draw-polygon-picture").prop("files")[0];
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = function (event) {
           $("#polygon-fill-img-preview").empty();
-          $("#polygon-fill-img-preview").append('<img src="'+ reader.result +'" alt="Fill Image" style="width: 25px; height: 25px;">');
+          $("#polygon-fill-img-preview").append('<img src="' + reader.result + '" alt="Fill Image" style="width: 25px; height: 25px;">');
           redrawGraphicPolygon();
         };
       });
@@ -1043,7 +1151,7 @@ $(document).ready(function () {
         polygonEditGrafic = undefined;
       });
 
-      $("#delete-draw-polygon").click(function() {
+      $("#delete-draw-polygon").click(function () {
         deleteGraphics(polygonEditGrafic, drawPolygonGraphicLayer);
         polygonEditGrafic = undefined;
       });
@@ -1053,6 +1161,78 @@ $(document).ready(function () {
         $("#draw-polygon-picture").text("or drag and drop files here");
         $("#draw-point-picture").val("");
       });
+
+      $("#draw-text").click(function() {
+        createTS();
+        drawToolBar.activate("point");
+      });
+
+      function createTS() {
+        var fontsize = $("#text-font-size").val();
+        var fontstyle = $("#text-font-style").val();
+        var fontweight = $("#text-font-weight").val();
+        var fontfamily = $("#text-family").val();
+        var fontdecoration = $("#text-font-decoration").val();
+        var font = new Font({
+          "family" : fontfamily,
+          "style" : fontstyle,
+          "weight" : fontweight,
+          "decoration" : fontdecoration
+        });
+        font.setSize(fontsize+"pt");
+        var text = $("#text-text").val();
+        var textcolor = getSymColor("text-colorSelector");
+        var texthorialign = $("#text-hori-alignment").val();
+        var textvertalign = $("#text-vert-alignment").val();
+        var texthalocolor = getSymColor("text-halo-colorSelector");
+        var texthalowidth = $("#text-halo-width").val();
+        var textangle = $("#text-angle").val();
+        drawGraphicSymbol = new TextSymbol({
+          "type" : "esriTS",
+          "color" : textcolor,
+          "verticalAlignment" : textvertalign,
+          "horizontalAlignment" : texthorialign,
+          "text" : text
+        });
+        drawGraphicSymbol.setFont(font);
+        drawGraphicSymbol.setAngle(parseInt(textangle));
+        if($('#text-halo-apply').is(':checked')) {
+          drawGraphicSymbol.setHaloSize(parseInt(texthalowidth));
+          drawGraphicSymbol.setHaloColor(new Color(texthalocolor));
+        }
+      }
+
+      $("#save-draw-text").click(function() {
+        saveGraficData(drawTextGraphicLayer, "text-graphic-data")
+      });
+
+      $("#delete-draw-text").click(function() {
+        deleteGraphics(textEditGrafic, drawTextGraphicLayer)
+      });
+
+      $("#text-halo-apply").change(function() {
+        if(this.checked) {
+          $("#text-halo-color").css("display", "block");
+          $("#text-halo-width-container").css("display", "block");
+        } else {
+          $("#text-halo-color").css("display", "none");
+          $("#text-halo-width-container").css("display", "none");
+        }
+      });
+
+      $("#text-text").change(redrawGraphicText);
+      $("#text-hori-alignment").change(redrawGraphicText);
+      $("#text-vert-alignment").change(redrawGraphicText);
+      $("#text-angle").change(redrawGraphicText);
+      $("#text-angle").on("mousewheel", redrawGraphicText);
+      $("#text-halo-width").change(redrawGraphicText);
+      $("#text-halo-width").on("mousewheel", redrawGraphicText);
+      $("#text-family").change(redrawGraphicText);
+      $("#text-font-size").change(redrawGraphicText);
+      $("#text-font-size").on("mousewheel", redrawGraphicText);
+      $("#text-font-style").change(redrawGraphicText);
+      $("#text-font-weight").change(redrawGraphicText);
+      $("#text-font-decoration").change(redrawGraphicText);
 
     });
 });

@@ -22,7 +22,8 @@
 }
 
 .form-style input.input-field, .form-style .select-field, 
-#pt-colorSelector, #line-colorSelector, #polygon-colorSelector, #polygon-outline-colorSelector {
+#pt-colorSelector, #line-colorSelector, #polygon-colorSelector, 
+#polygon-outline-colorSelector, #text-colorSelector, #text-halo-colorSelector {
 	width: 64%;
 }
 

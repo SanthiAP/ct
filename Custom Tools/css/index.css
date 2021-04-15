@@ -340,7 +340,9 @@ ul.draw-point-tabs li.draw-current {
   cursor: pointer;
 }
 
-#save-draw-points, #save-sym-draw-points, #save-draw-line, #save-draw-polygon {
+#save-draw-points, #save-sym-draw-points, 
+#save-draw-line, #save-draw-polygon,
+#save-draw-text {
   background: #015b21;
 }
 
@@ -348,11 +350,15 @@ ul.draw-point-tabs li.draw-current {
   font-size: 10px;
 }
 
-#draw-point-deactivate, #draw-sym-point-deactivate, #draw-line-deactivate, #draw-polygon-deactivate {
+#draw-point-deactivate, #draw-sym-point-deactivate,
+#draw-line-deactivate, #draw-polygon-deactivate,
+#draw-text-deactivate {
   background: #9c9702;
 }
 
-#delete-draw-points, #delete-sym-draw-points, #delete-draw-line, #delete-draw-polygon {
+#delete-draw-points, #delete-sym-draw-points, 
+#delete-draw-line, #delete-draw-polygon,
+#delete-draw-text {
   background: #9c0202;
   display: none;
 }
@@ -361,7 +367,8 @@ ul.draw-point-tabs li.draw-current {
   display: flex !important;
 }
 
-#pt-colorSelector div, #line-colorSelector div, #polygon-colorSelector div, #polygon-outline-colorSelector div {
+#pt-colorSelector div, #line-colorSelector div, #text-halo-colorSelector div,
+#polygon-colorSelector div, #polygon-outline-colorSelector div, #text-colorSelector div {
   background-color: rgb(40, 40, 133);
   width: 100%;
   height: 32px;
@@ -495,7 +502,7 @@ ul.draw-point-tabs li.draw-current {
 #draw-options-container .draw-mode-inner {
   margin-top: 5px;
   display: none;
-  height: calc(100% - 17px);
+  height: calc(100% - 35px);
 }
 
 .draw-buttons {
@@ -633,5 +640,25 @@ ul.draw-point-tabs li.draw-current {
 }
 
 #polygon-color, #polygon-opacity {
+  display: none;
+}
+
+#text-colorSelector, #text-halo-colorSelector {
+  display: flex;
+}
+
+.no-padding {
+  padding-top: 0 !important;
+}
+
+#draw-text {
+  background-image: url(../images/draw_text.png);
+}
+
+#text-halo-width-container, #text-halo-color {
+  display: none;
+}
+
+.esriSymbolEditor {
   display: none;
 }

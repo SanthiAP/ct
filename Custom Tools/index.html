@@ -112,7 +112,7 @@
                   <img src="images/draw_freehand_polygon.png" alt="Freehand Polygon">
                   <span>Freehand Polygon</span>
                 </div>
-                <div class="draw-buttons">
+                <div id="draw-text-btn" class="draw-buttons">
                   <img src="images/draw_text.png" alt="Text">
                   <span>Text</span>
                 </div>
@@ -347,9 +347,11 @@
                     </div>
                     <button id="clear-polygon-pic-selection"> Clear </button>
                   </div>
-                  <label id="polygon-opacity" for="polygon-fill-opacity"><span>Transparency <span class="required">*</span></span>
+                  <label id="polygon-opacity" for="polygon-fill-opacity"><span>Transparency <span
+                        class="required">*</span></span>
                     <div class="poly-trans-container">
-                      <input type="range" min="1" max="100" value="50" class="polygon-fill-opacity-slider" id="poly-fill-transp-slider">
+                      <input type="range" min="1" max="100" value="50" class="polygon-fill-opacity-slider"
+                        id="poly-fill-transp-slider">
                       <input class="trans-inp" type="text" value="50" id="poly-trans-input">
                     </div>
                   </label>
@@ -450,7 +452,91 @@
                 </div>
               </div>
               <div id="draw-text-container" class="draw-mode-inner">
-
+                <div class="form-style">
+                  <label for="text-text"><span>Text <span class="required">*</span></span>
+                    <input id="text-text" type="text" class="input-field" name="text-text" value="Text" placeholder="Please enter text..."/>
+                  </label>
+                  <label id="text-color" for="text-color"><span>Color <span class="required">*</span></span>
+                    <div id="text-colorSelector">
+                      <div style="background-color: #0000ff"></div>
+                    </div>
+                  </label>
+                  <label for="text-hori-alignment">
+                    <span class="no-padding">Horizontal Alignment <span class="required">*</span></span>
+                    <select name="text-hori-alignment" id="text-hori-alignment" class="select-field">
+                      <option value="left">Left</option>
+                      <option value="right">Right</option>
+                      <option value="center">Center</option>
+                      <option value="justify">Justify</option>
+                    </select>
+                  </label>
+                  <label for="text-vert-alignment">
+                    <span class="no-padding">Vertical Alignment <span class="required">*</span></span>
+                    <select name="text-vert-alignment" id="text-vert-alignment" class="select-field">
+                      <option value="baseline">Baseline</option>
+                      <option value="top">Top</option>
+                      <option value="middle">Middle</option>
+                      <option value="bottom">Bottom</option>
+                    </select>
+                  </label>
+                  <label for="text-angle"><span>Angle <span class="required">*</span></span>
+                    <input id="text-angle" type="number" class="input-field" name="text-angle" value="0" min="-360" max="360" placeholder="Please enter text Angle.."/>
+                  </label>
+                  <label for="text-halo-apply">
+                    <input type="checkbox" id="text-halo-apply" name="text-halo-apply">
+                    Set text halo
+                  </label>
+                  <label id="text-halo-color" for="text-color"><span>Halo Color <span class="required">*</span></span>
+                    <div id="text-halo-colorSelector">
+                      <div style="background-color: #0000ff"></div>
+                    </div>
+                  </label>
+                  <label id="text-halo-width-container" for="text-halo-width"><span>halo width <span class="required">*</span></span>
+                    <input id="text-halo-width" type="number" class="input-field" name="text-halo-width" value="1" min="1" max="10" placeholder="Please enter text halo width.."/>
+                  </label>
+                  <label for="font">Font Style</label><hr>
+                  <label for="text-family"><span>Family <span class="required">*</span></span>
+                    <input id="text-family" type="text" class="input-field" name="text-family" value="Serif" placeholder="Please enter text Family.."/>
+                  </label>
+                  <label for="text-font-size"><span>Size <span class="required">*</span></span>
+                    <input id="text-font-size" type="number" class="input-field" name="text-font-size" value="12" min="10" max="30" placeholder="Please enter text size.."/>
+                  </label>
+                  <label for="text-font-style"><span>Style <span class="required">*</span></span>
+                    <select name="text-font-style" id="text-font-style" class="select-field">
+                      <option value="italic">Italic</option>
+                      <option value="normal">Normal</option>
+                      <option value="oblique">Oblique</option>
+                    </select>
+                  </label>
+                  <label for="text-font-weight"><span>Weight <span class="required">*</span></span>
+                    <select name="text-font-weight" id="text-font-weight" class="select-field">
+                      <option value="bold">Bold</option>
+                      <option value="normal">Normal</option>
+                      <option value="bolder">Bolder</option>
+                      <option value="lighter">Lighter</option>
+                    </select>
+                  </label>
+                  <label for="text-font-decoration"><span>Decoration <span class="required">*</span></span>
+                    <select name="text-font-decoration" id="text-font-decoration" class="select-field">
+                      <option value="line-through">Line through</option>
+                      <option value="none">None</option>
+                      <option value="underline">Underline</option>
+                    </select>
+                  </label>
+                  <div class="flex-div draw-pt-opts line-draw-opts">
+                    <button id="draw-text" class="pt-draw-btn line-btns">
+                    </button>
+                    <button id="draw-text-deactivate" class="pt-draw-btn line-btns">
+                      <i class="fas fa-ban"></i>
+                    </button>
+                    <button id="save-draw-text" class="pt-draw-btn line-btns">
+                      <i class="fas fa-save"></i>
+                    </button>
+                    <button id="delete-draw-text" class="pt-draw-btn line-btns">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
