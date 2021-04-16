@@ -659,6 +659,6 @@ ul.draw-point-tabs li.draw-current {
   display: none;
 }
 
-.esriSymbolEditor {
-  display: none;
+.esriSymbolEditor, .esri-halo-styler {
+  display: none !important;
 }

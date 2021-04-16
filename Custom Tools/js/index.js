@@ -144,6 +144,11 @@ $(document).ready(function () {
           return;
         }
 
+        if(polygonEditGrafic) { // to prevent polygon symbol change reverse
+          alertify.error("Click on map. Do save or edit the graphic")
+          return;
+        }
+
         var polygraf = evt.graphic;
         $("#delete-draw-polygon").show();
         activateLineEditTB(polygraf);
@@ -151,6 +156,7 @@ $(document).ready(function () {
         $("#polygon-line-size").val(sym.outline.width);
         var convertedClr = rgbToHex(sym.outline.color.r, sym.outline.color.g, sym.outline.color.b);
         $("#polygon-outline-colorSelector div").css("background-color", convertedClr);
+        $("#polygon-outline-style div svg").removeClass("selected-polygon-outline-symbol");
         $("#polygon-outline-style div[title='" + linePreviewSVG.slsTitleMapping[sym.outline.style] + "'] svg").addClass('selected-polygon-outline-symbol');
         if (!sym.style && sym.url) {
           $("#polygon-style").val("picture");
@@ -180,7 +186,7 @@ $(document).ready(function () {
         $("#text-colorSelector div").css("background-color", convertedClr);
         $("#text-hori-alignment").val(sym.horizontalAlignment);
         $("#text-vert-alignment").val(sym.verticalAlignment);
-        $("#text-angle").val(sym.angle);
+        $("#text-angle").val(parseInt(nullArray.indexOf(sym.angle) >= 0 ? 0 : sym.angle));
         if(sym.haloColor) {
           var halocolor = sym.haloColor;
           $("#text-halo-width").val(sym.haloSize);
@@ -189,7 +195,7 @@ $(document).ready(function () {
         var ft = sym.font;
         $("#text-family").val(ft.family);
         $("#text-font-size").val(ft.size);
-        $("#text-font-style").val(ft.style);
+        $("#text-font-style").val(nullArray.indexOf(ft.style)>=0 ? "none" : ft.style);
         $("#text-font-weight").val(ft.weight);
         $("#text-font-decoration").val(ft.decoration);
         redrawGraphicText()
@@ -200,7 +206,7 @@ $(document).ready(function () {
       }
 
       function activateTextEditTB(graf) {
-        editToolBar.activate(Edit.MOVE | Edit.ROTATE, graf);
+        editToolBar.activate(Edit.MOVE | Edit.ROTATE | Edit.SCALE, graf);
       }
 
       function activateLineEditTB(graf) {
@@ -218,6 +224,7 @@ $(document).ready(function () {
         editToolBar.deactivate();
         lineEditGrafic = undefined;
         polygonEditGrafic = undefined;
+        textEditGrafic = undefined;
       });
 
       bmFPSymbol = new SimpleFillSymbol(
@@ -365,16 +372,19 @@ $(document).ready(function () {
           "weight" : sym.font.weight,
           "decoration" : sym.font.decoration
         });
-        font.setSize(parseInt(sym.font.size)+"pt");
-        var grafsym = new TextSymbol({
-          "type" : "esriTS",
-          "color" : new Color(sym.color),
-          "verticalAlignment" : sym.verticalAlignment,
-          "horizontalAlignment" : sym.horizontalAlignment,
-          "text" : sym.text
-        });
-        grafsym.setFont(font);
-        grafsym.setAngle(parseInt(sym.angle));
+        font.setSize(parseInt(sym.font.size)+"px");
+        // var grafsym = new TextSymbol({
+        //   "type" : "esriTS",
+        //   "color" : new Color(sym.color),
+        //   "verticalAlignment" : sym.verticalAlignment,
+        //   "horizontalAlignment" : sym.horizontalAlignment,
+        //   "text" : sym.text
+        // });
+        var grafsym = new TextSymbol(sym.text, font, new Color(sym.color));
+        grafsym.setAngle(parseInt(nullArray.indexOf(sym.angle) >= 0 ? 0 : sym.angle));
+        grafsym.setHorizontalAlignment(sym.verticalAlignment);
+        grafsym.setVerticalAlignment(sym.horizontalAlignment);
+        
         if(sym.haloSize) {
           grafsym.setHaloColor(new Color(sym.haloColor));
           grafsym.setHaloSize(parseInt(sym.haloSize));
@@ -920,6 +930,7 @@ $(document).ready(function () {
         saveGraficData(drawLineGraphicLayer, "line-graphic-data");
         lineEditGrafic = undefined;
         polygonEditGrafic = undefined;
+        textEditGrafic = undefined;
       });
 
       function saveGraficData(lay, sessionKey) {
@@ -1022,6 +1033,10 @@ $(document).ready(function () {
           $("#polygon-pic-fill").css("display", "flex");
           $("#polygon-color").hide();
           $("#polygon-opacity").hide();
+          if(!($("#draw-polygon-picture").val())) {
+            alertify.error("Please provide input image!.");
+            return;
+          }
         } else if (selectedStyle == "esriSFSSolid") {
           $("#polygon-color").css("display", "flex");
           $("#polygon-opacity").css("display", "flex");
@@ -1114,14 +1129,17 @@ $(document).ready(function () {
             reader.onload = function (event) {
               sfs = new PictureFillSymbol(reader.result, outlinesym, 20, 20)
               drawGraphicSymbol = sfs;
+              redrawGraphicPolygon();
             };
           } else {
-            if (polygonEditGrafic.symbol.url) {
+            if (polygonEditGrafic && polygonEditGrafic.symbol.url) {
               sfs = new PictureFillSymbol(polygonEditGrafic.symbol.url, outlinesym, 20, 20)
               drawGraphicSymbol = sfs;
             } else if ($("#polygon-fill-img-preview img").prop("src")) {
               sfs = new PictureFillSymbol($("#polygon-fill-img-preview img").prop("src"), outlinesym, 20, 20)
               drawGraphicSymbol = sfs;
+            } else {
+              alertify.error("Please provide fill image!.")
             }
           }
         } else {
@@ -1174,12 +1192,12 @@ $(document).ready(function () {
         var fontfamily = $("#text-family").val();
         var fontdecoration = $("#text-font-decoration").val();
         var font = new Font({
-          "family" : fontfamily,
-          "style" : fontstyle,
-          "weight" : fontweight,
-          "decoration" : fontdecoration
+          family: fontfamily,
+          style: fontstyle,
+          weight: fontweight,
+          decoration: fontdecoration
         });
-        font.setSize(fontsize+"pt");
+        font.setSize(fontsize+"px");
         var text = $("#text-text").val();
         var textcolor = getSymColor("text-colorSelector");
         var texthorialign = $("#text-hori-alignment").val();
@@ -1203,11 +1221,14 @@ $(document).ready(function () {
       }
 
       $("#save-draw-text").click(function() {
-        saveGraficData(drawTextGraphicLayer, "text-graphic-data")
+        saveGraficData(drawTextGraphicLayer, "text-graphic-data");
+        $("#delete-draw-text").hide();
+        textEditGrafic = undefined;
       });
 
       $("#delete-draw-text").click(function() {
-        deleteGraphics(textEditGrafic, drawTextGraphicLayer)
+        deleteGraphics(textEditGrafic, drawTextGraphicLayer);
+        textEditGrafic = undefined;
       });
 
       $("#text-halo-apply").change(function() {
