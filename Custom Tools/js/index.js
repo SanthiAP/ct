@@ -30,10 +30,10 @@ $(document).ready(function () {
   var sessionLineGraphicData = localStorage.getItem("line-graphic-data");
   var sessionPolygonGraphicData = localStorage.getItem("polygon-graphic-data");
   var sessionTextGraphicData = localStorage.getItem("text-graphic-data");
-  // var bmscroll = new PerfectScrollbar(".bm-content-container");
   var titleMapping = {
     "tool-bm": "BookMark",
-    "tool-draw": "Draw"
+    "tool-draw": "Draw",
+    "tool-adddata": "Add Data"
   }
   require(["esri/map",
     "esri/Color",
@@ -217,7 +217,7 @@ $(document).ready(function () {
       }
 
       map.on("click", function (evt) {
-        if (evt.graphic) {
+        if (!evt.graphic) {
           return;
         }
         $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line, #delete-draw-polygon").hide();
@@ -373,13 +373,6 @@ $(document).ready(function () {
           "decoration" : sym.font.decoration
         });
         font.setSize(parseInt(sym.font.size)+"px");
-        // var grafsym = new TextSymbol({
-        //   "type" : "esriTS",
-        //   "color" : new Color(sym.color),
-        //   "verticalAlignment" : sym.verticalAlignment,
-        //   "horizontalAlignment" : sym.horizontalAlignment,
-        //   "text" : sym.text
-        // });
         var grafsym = new TextSymbol(sym.text, font, new Color(sym.color));
         grafsym.setAngle(parseInt(nullArray.indexOf(sym.angle) >= 0 ? 0 : sym.angle));
         grafsym.setHorizontalAlignment(sym.verticalAlignment);
@@ -1255,5 +1248,8 @@ $(document).ready(function () {
       $("#text-font-weight").change(redrawGraphicText);
       $("#text-font-decoration").change(redrawGraphicText);
 
+      var adddataconst = new AddData("tool-adddata-container", map);
+      $("#tool-adddata-container input").change(function() {alert("hi")});
+      // $(".clear-add-data-selection").click(adddataconst.clearOnchange);
     });
 });
