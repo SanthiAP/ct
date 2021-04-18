@@ -75,6 +75,16 @@ $(document).ready(function () {
       });
 
       map.on("load", mapLoaded);
+      map.on("update-start", showPageLoading);
+      map.on("update-end", hidePageLoading);
+
+      function showPageLoading() {
+        $(".page-loader").show();
+      }
+      
+      function hidePageLoading() {
+        $(".page-loader").hide();
+      }
 
       bmFPLayer = new GraphicsLayer({
         "id": "bookmark"
@@ -217,7 +227,7 @@ $(document).ready(function () {
       }
 
       map.on("click", function (evt) {
-        if (!evt.graphic) {
+        if (evt.graphic) {
           return;
         }
         $("#delete-draw-points, #delete-sym-draw-points, #delete-draw-line, #delete-draw-polygon").hide();
@@ -1249,7 +1259,5 @@ $(document).ready(function () {
       $("#text-font-decoration").change(redrawGraphicText);
 
       var adddataconst = new AddData("tool-adddata-container", map);
-      $("#tool-adddata-container input").change(function() {alert("hi")});
-      // $(".clear-add-data-selection").click(adddataconst.clearOnchange);
     });
 });

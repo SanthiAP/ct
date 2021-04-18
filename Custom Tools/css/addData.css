@@ -63,6 +63,7 @@
   border-radius: 4px;
   color: white;
   cursor: pointer;
+  width: 3.5vw;
 }
 
 .adddata-overall {
@@ -95,9 +96,64 @@
 
 .ad-zoomto {
   margin-right: 2vw;
+  cursor: pointer;
+}
+
+.ad-remove {
+  cursor: pointer;
 }
 
 .ad-tools {
   display: flex;
   justify-content: space-between;
+}
+
+.ad-alayer .fa-spinner {
+  display: none;
+}
+
+.ad-layer-name-container {
+  display: flex;
+}
+
+.ad-or-container {
+  display: flex;
+  justify-content: center;
+  padding: 5px 0 10px 0;
+}
+
+.ad-url-inp-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ad-url-input {
+  width: calc(75% + 30px);
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  border: 1px solid #C2C2C2;
+  box-shadow: 1px 1px 4px #ebebeb;
+  -moz-box-shadow: 1px 1px 4px #EBEBEB;
+  -webkit-box-shadow: 1px 1px 4px #ebebeb;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  padding: 7px;
+  outline: none;
+}
+
+.ad-url-input:active {
+  border: 1px solid #0C0;
+}
+
+.ad-url-add {
+  height: 5vh;
+  background: #01015b;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  width: 3.5vw;
 }
