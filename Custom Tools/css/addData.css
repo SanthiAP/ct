@@ -73,6 +73,7 @@
 .ad-layer-container {
   height: calc(100% - 12vh);
   overflow: auto;
+  padding-top: 9px;
 }
 
 .ad-alayer {
