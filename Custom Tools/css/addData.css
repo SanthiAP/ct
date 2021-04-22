@@ -158,3 +158,8 @@
   cursor: pointer;
   width: 3.5vw;
 }
+
+.add-data-loading {
+  display: none;
+  margin-right: 0.5vw;
+}

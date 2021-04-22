@@ -20,8 +20,11 @@ class AddData {
                         <div class="add-data-container">
                           <div class="add-data-file-drop-area">
                             <span class="add-data-fake-btn">Choose files</span>
-                            <span class="add-data-file-msg">or drag and drop files here</span>
-                            <input id="add-data-file-input" class="add-data-file-input" type="file" accept=".zip, .csv, .kml">
+                            <span class="add-data-loading">
+                              <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                            <span class="add-data-file-msg"> or drag and drop files here</span>
+                            <input id="add-data-file-input" class="add-data-file-input" type="file" accept=".zip, .csv, .kml, .kmz">
                           </div>
                           <button class="clear-add-data-selection"> Clear </button>
                         </div>
@@ -46,6 +49,7 @@ class AddData {
     var selectedFile = $(this)[0].files[0];
     if (!selectedFile)
       return;
+    $(".add-data-loading").show();
     $(".add-data-file-msg").text(selectedFile.name);
     var splitedfilename = selectedFile.name.split(".")
     var fileType = splitedfilename[splitedfilename.length - 1];
@@ -61,6 +65,9 @@ class AddData {
           dis.loadCSV(reader.result, layerName, selectedFile);
           break;
         case "kml":
+          dis.addKMLFile(selectedFile);
+          break;
+        case "kmz":
           dis.addKMLFile(selectedFile);
           break;
         default:
@@ -115,8 +122,7 @@ class AddData {
         var marker = new SimpleMarkerSymbol("solid", 15, null, orangeRed);
         var renderer = new SimpleRenderer(marker);
         csvlayer.setRenderer(renderer);
-        dis.map.addLayer(csvlayer);
-        dis.addAddedLayer(layname)
+        dis.addLayerOnMap(csvlayer, layname);
       }
     });
   }
@@ -251,8 +257,7 @@ class AddData {
           name: layname
         });
       }
-      dis.map.addLayer(layer);
-      dis.addAddedLayer(layname)
+      dis.addLayerOnMap(layer, layname);
     });
   }
 
@@ -260,15 +265,9 @@ class AddData {
     var fileName = Kmlfile.name;
     var KMLFileName = Kmlfile.name;
 
-    if (sniff("ie")) {
-      //filename is full path in IE so extract the file name
-      var arr = fileName.split("\\");
-      fileName = arr[arr.length - 1];
-    }
-
     if (!fileName ||
-      fileName.indexOf(".kml") == -1 ||
-      fileName.indexOf(".kmz") == -1) {
+      (fileName.indexOf(".kml") == -1 &&
+        fileName.indexOf(".kmz") == -1)) {
       alertify.error("File format is not suppported");
       return;
     }
@@ -292,118 +291,160 @@ class AddData {
       info.baseFileName = dis.getBaseFileName(info.fileName);
       dis.generatekmllayer(info, function (res) {
         if (res == "error") {
-          alertify.error("Failed to add layer");
-          return;
+          alertify.error("Failed to load layer");
         }
-
       });
 
+    } else if (KMLFileName.indexOf(".kmz") !== -1) {
+      var file, files;
+      var info = {
+        ok: false,
+        file: null,
+        fileName: null,
+        fileType: null,
+      };
+      files = Kmlfile;
+      var kmlFile = dis.getKmlFile(Kmlfile);
+      kmlFile.then(function (kmlfile) {
+        if (files) {
+          info.file = file = kmlfile;
+          info.fileName = kmlfile.name;
+          info.ok = true;
+          info.fileType = "KML";
+        }
+        info.baseFileName = dis.getBaseFileName(info.fileName);
+        dis.generatekmllayer(info, function(res) {
+          if(res == "error") {
+            alertify.error("Failed to load layer");
+            return;
+          }
+        });
+      });
+    }
+    else {
+      alertify.error("Incorrect Format. Add File as .kml.");
+      return;
     }
   }
 
   getBaseFileName(fileName) {
     var a,
       baseFileName = fileName;
-    if (sniff("ie")) {
-      //fileName is full path in IE so extract the file name
-      a = baseFileName.split("\\");
-      baseFileName = a[a.length - 1];
-    }
     a = baseFileName.split(".");
     //Chrome and IE add c:\fakepath to the value - we need to remove it
     baseFileName = a[0].replace("c:\\fakepath\\", "");
     return baseFileName;
   }
 
+  getKmlFile(kmzFile) {
+    var zip = new JSZip();
+    return zip.loadAsync(kmzFile).then((zip) => {
+        kmlfile = null;
+        zip.forEach((relPath, file) => {
+            if (relPath.split(".").pop() === "kml" && kmlfile === null) {
+                kmlfile = file.async("blob").then(function (fileData) {
+                    return new File([fileData], file.name);
+                });
+            }
+        });
+        return kmlfile;
+    });
+}
+
   generatekmllayer(fileInfo, callback) {
     require([
       "esri/request",
-      "esri/layers/KMLLayer"
-    ], function (esriRequest, KMLLayer) {
-    var job = {
-      map: map,
-      sharingUrl: "http://utilitygis.lntecc.com/portal/sharing/rest",
-      baseFileName: fileInfo.baseFileName,
-      fileName: fileInfo.fileName,
-      fileType: fileInfo.fileType,
-      generalize: true,
-      publishParameters: {},
-      numFeatures: 0,
-    };
-    var reader = new FileReader();
-    var handleError = function (pfx, error) {
-      callback("error");
-    };
-    reader.onerror = function (err) {
-      callback("error");
-    };
-    reader.onload = function (event) {
-      if (reader.error) {
+      "esri/layers/KMLLayer",
+      "esri/layers/FeatureLayer",
+      "dojo/_base/lang",
+      "dojo/_base/json",
+      "dojo/_base/array"
+    ], function (esriRequest, KMLLayer, FeatureLayer,
+      lang, dojoJson, arrayUtils) {
+      var job = {
+        map: dis.map,
+        sharingUrl: "http://utilitygis.lntecc.com/portal/sharing/rest",
+        baseFileName: fileInfo.baseFileName,
+        fileName: fileInfo.fileName,
+        fileType: fileInfo.fileType,
+        generalize: true,
+        publishParameters: {},
+        numFeatures: 0,
+      };
+      var reader = new FileReader();
+      reader.onerror = function (err) {
         callback("error");
-        return;
-      }
-      var v = event.target.result;
-      var url = "";
-      var id = fileInfo.fileName;
-      var layer = new KMLLayer(url, {
-        id: id,
-        name: fileInfo.fileName,
-        linkInfo: {
-          visibility: false,
-        },
-      });
-      layer.visible = true;
-      delete layer.linkInfo;
-      layer._parseKml = function () {
-        var self = this;
-        this._fireUpdateStart();
-        // Send viewFormat as necessary if this kml layer represents a
-        // network link i.e., in the constructor options.linkInfo is
-        // available and linkInfo has viewFormat property
-        this._io = esriRequest(
-          {
-            url: this.serviceUrl,
-            content: {
-              /*url: this._url.path + this._getQueryParameters(map),*/
-              kmlString: encodeURIComponent(v),
-              model: "simple",
-              folders: "",
-              refresh: this.loaded ? true : undefined,
-              outSR: dojoJson.toJson(this._outSR.toJson()),
-            },
-            callbackParamName: "callback",
-            load: function (response) {
-              self._io = null;
-              self._initLayer(response);
-              var Point_labelingInfo = [
-                {
-                  labelExpressionInfo: {
-                    expression: "$feature.name",
+      };
+      reader.onload = function (event) {
+        if (reader.error) {
+          callback("error");
+          return;
+        }
+        var v = event.target.result;
+        var url = "";
+        var id = fileInfo.fileName;
+        var layer = new KMLLayer(url, {
+          id: dis.getBaseFileName(id),
+          name: dis.getBaseFileName(id),
+          linkInfo: {
+            visibility: false,
+          },
+        });
+        layer.visible = true;
+        delete layer.linkInfo;
+        layer._parseKml = function () {
+          var self = this;
+          this._fireUpdateStart();
+          // Send viewFormat as necessary if this kml layer represents a
+          // network link i.e., in the constructor options.linkInfo is
+          // available and linkInfo has viewFormat property
+          this._io = esriRequest(
+            {
+              url: this.serviceUrl,
+              content: {
+                /*url: this._url.path + this._getQueryParameters(map),*/
+                kmlString: encodeURIComponent(v),
+                model: "simple",
+                folders: "",
+                refresh: this.loaded ? true : undefined,
+                outSR: dojoJson.toJson(this._outSR.toJson()),
+              },
+              callbackParamName: "callback",
+              load: function (response) {
+                self._io = null;
+                self._initLayer(response);
+                var Point_labelingInfo = [
+                  {
+                    labelExpressionInfo: {
+                      expression: "$feature.name",
+                    },
+                    labelPlacement: "center-center",
                   },
-                  labelPlacement: "center-center",
-                },
-              ];
-              var Pline_labelingInfo = [
-                {
-                  labelExpressionInfo: {
-                    expression: "$feature.name",
+                ];
+                var Pline_labelingInfo = [
+                  {
+                    labelExpressionInfo: {
+                      expression: "$feature.name",
+                    },
+                    labelPlacement: "above-along",
                   },
-                  labelPlacement: "above-along",
-                },
-              ];
-              var Poly_labelingInfo = [
-                {
-                  labelExpressionInfo: {
-                    expression: "$feature.name",
+                ];
+                var Poly_labelingInfo = [
+                  {
+                    labelExpressionInfo: {
+                      expression: "$feature.name",
+                    },
+                    labelPlacement: "always-horizontal",
                   },
-                  labelPlacement: "always-horizontal",
-                },
-              ];
-              dis.waitForLayer(layer)
-                .then(function (lyr) {
+                ];
+                dis.waitForLayer(layer, function (lyr) {
+                  if (lyr == "error") {
+                    alertify.error("Failed to load layer");
+                    return;
+                  }
                   var num = 0;
-                  lyr.name = fileInfo.fileName;
-                  lyr.id = fileInfo.fileName;
+                  lyr.name = dis.getBaseFileName(fileInfo.fileName);
+                  lyr.id = dis.getBaseFileName(fileInfo.fileName);
                   lyr.xtnAddData = true;
                   arrayUtils.forEach(lyr.getLayers(), function (l) {
                     if (l && l.graphics && l.graphics.length > 0) {
@@ -419,75 +460,120 @@ class AddData {
                       }
                     }
                   });
-                  dis.map.addLayer(lyr);
+                  dis.addLayerOnMap(lyr, lyr.name);
+                  dis.kmlextent(lyr);
                   callback("success");
-                })
-                .otherwise(function (err) {
-                  callback("error");
                 });
+              },
+              error: function (err) {
+                self._io = null;
+                err = lang.mixin(new Error(), err);
+                err.message = "Unable to load KML: " + (err.message || "");
+                self._fireUpdateEnd(err);
+                self._errorHandler(err, callback);
+                callback("error");
+              },
             },
-            error: function (err) {
-              self._io = null;
-              err = lang.mixin(new Error(), err);
-              err.message = "Unable to load KML: " + (err.message || "");
-              self._fireUpdateEnd(err);
-              self._errorHandler(err, callback);
-              callback("error");
-            },
-          },
-          { usePost: true }
-        );
+            { usePost: true }
+          );
+        };
+        layer._parseKml();
       };
-      layer._parseKml();
-    };
-    try {
-      reader.readAsText(fileInfo.file);
-    } catch (ex) {
-      callback("error");
-    }
-  });
+      try {
+        reader.readAsText(fileInfo.file);
+      } catch (ex) {
+        callback("error");
+      }
+    });
   }
-  waitForLayer(layer) {
-    var dfd = new Deferred(),
-      handles = [];
-    if (layer.loaded) {
-      dfd.resolve(layer);
-      return dfd;
-    }
-    if (layer.loadError) {
-      dfd.reject(layer.loadError);
-      return dfd;
-    }
-    var clearHandles = function () {
-      arrayUtils.forEach(handles, function (h) {
-        h.remove();
-      });
-    };
-    handles.push(
-      layer.on("load", function (layerLoaded) {
-        clearHandles();
-        dfd.resolve(layerLoaded.layer);
-      })
-    );
-    handles.push(
-      layer.on("error", function (layerError) {
-        clearHandles();
-        var error = layerError.error;
-        try {
-          if (
-            error.message &&
-            error.message.indexOf("Unable to complete") !== -1
-          ) {
-            console.warn("layerAccessError", error);
-            dfd.reject(new Error(i18n.search.layerInaccessible));
-          } else {
+
+  waitForLayer(layer, callback) {
+    require([
+      "dojo/Deferred"
+    ], function (Deferred) {
+      var dfd = new Deferred(),
+        handles = [];
+      if (layer.loaded) {
+        dfd.resolve(layer);
+        dfd.then(function (lyr) { callback(lyr) })
+          .otherwise(function (err) {
+            callback("error");
+          });;
+        return;
+      }
+      if (layer.loadError) {
+        dfd.reject(layer.loadError);
+        dfd.then(function (lyr) { callback(lyr) })
+          .otherwise(function (err) {
+            callback("error");
+          });;
+        return;
+      }
+      var clearHandles = function () {
+        handles.forEach(function (h) {
+          h.remove();
+        });
+      };
+      handles.push(
+        layer.on("load", function (layerLoaded) {
+          clearHandles();
+          dfd.resolve(layerLoaded.layer);
+        })
+      );
+      handles.push(
+        layer.on("error", function (layerError) {
+          clearHandles();
+          var error = layerError.error;
+          try {
+            if (
+              error.message &&
+              error.message.indexOf("Unable to complete") !== -1
+            ) {
+              console.warn("layerAccessError", error);
+              dfd.reject(new Error(i18n.search.layerInaccessible));
+            } else {
+              dfd.reject(error);
+            }
+          } catch (ex) {
             dfd.reject(error);
           }
-        } catch (ex) {
-          dfd.reject(error);
+        })
+      );
+      dfd.then(function (lyr) { callback(lyr) })
+        .otherwise(function (err) {
+          callback("error");
+        });;
+      return;
+    });
+  }
+
+  kmlextent(KMLLayerLoaded) {
+    var kmlExtent = null,
+      layers = KMLLayerLoaded.getLayers();
+    layers.forEach(function (lyr) {
+      if (lyr.graphics && lyr.graphics.length > 0) {
+        var lyrExtent = esri.graphicsExtent(lyr.graphics);
+        if (kmlExtent != null) {
+          kmlExtent = kmlExtent.union(lyrExtent);
+        } else {
+          kmlExtent = lyrExtent;
         }
-      })
-    );
-    return dfd;
+      }
+    });
+    KMLLayerLoaded.fullExtent = kmlExtent;
+    dis.map.setExtent(kmlExtent);
+  }
+
+  addLayerOnMap(lyr, lyrname) {
+    var allLayerTags = $(".ad-layer-name-container").find('a');
+    allLayerTags.each(ind => {
+      if (lyrname == $(this).text()) {
+        alertify.error("Layer already available");
+        return;
+      }
+    });
+    dis.map.addLayer(lyr);
+    dis.addAddedLayer(lyrname);
+    $(".add-data-loading").hide();
   }
 }
