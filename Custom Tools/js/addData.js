@@ -1,6 +1,6 @@
 /**
  * Class to create add data divs and do its functionality
- * @requires JQuery, Font Awesome, AddData.css
+ * @requires JQuery, Font Awesome, AddData.css, JSZip, alertify
  * @author SanthiAP
  * @date   17-04-2021
  */
@@ -24,7 +24,7 @@ class AddData {
                               <i class="fas fa-spinner fa-spin"></i>
                             </span>
                             <span class="add-data-file-msg"> or drag and drop files here</span>
-                            <input id="add-data-file-input" class="add-data-file-input" type="file" accept=".zip, .csv, .kml, .kmz">
+                            <input id="add-data-file-input" class="add-data-file-input" type="file" accept=".zip, .csv, .kml, .kmz, .geojson">
                           </div>
                           <button class="clear-add-data-selection"> Clear </button>
                         </div>
@@ -69,6 +69,12 @@ class AddData {
           break;
         case "kmz":
           dis.addKMLFile(selectedFile);
+          break;
+        case "zip":
+          dis.addShapeFile(selectedFile, "Shapefile");
+          break;
+        case "geojson":
+          dis.addShapeFile(selectedFile, "GeoJSON");
           break;
         default:
 
@@ -273,20 +279,11 @@ class AddData {
     }
 
     if (KMLFileName.indexOf(".kml") !== -1) {
-      var file, files;
       var info = {
-        ok: false,
-        file: null,
-        fileName: null,
-        fileType: null,
-      };
-
-      files = Kmlfile;
-      if (files) {
-        info.file = file = Kmlfile;
-        info.fileName = file.name;
-        info.ok = true;
-        info.fileType = "KML";
+        ok: true,
+        file: Kmlfile,
+        fileName: Kmlfile.name,
+        fileType: "kml",
       }
       info.baseFileName = dis.getBaseFileName(info.fileName);
       dis.generatekmllayer(info, function (res) {
@@ -296,25 +293,17 @@ class AddData {
       });
 
     } else if (KMLFileName.indexOf(".kmz") !== -1) {
-      var file, files;
-      var info = {
-        ok: false,
-        file: null,
-        fileName: null,
-        fileType: null,
-      };
-      files = Kmlfile;
       var kmlFile = dis.getKmlFile(Kmlfile);
       kmlFile.then(function (kmlfile) {
-        if (files) {
-          info.file = file = kmlfile;
-          info.fileName = kmlfile.name;
-          info.ok = true;
-          info.fileType = "KML";
-        }
+        var info = {
+          ok: true,
+          file: kmlfile,
+          fileName: kmlfile.name,
+          fileType: "kml",
+        };
         info.baseFileName = dis.getBaseFileName(info.fileName);
-        dis.generatekmllayer(info, function(res) {
-          if(res == "error") {
+        dis.generatekmllayer(info, function (res) {
+          if (res == "error") {
             alertify.error("Failed to load layer");
             return;
           }
@@ -331,7 +320,6 @@ class AddData {
     var a,
       baseFileName = fileName;
     a = baseFileName.split(".");
-    //Chrome and IE add c:\fakepath to the value - we need to remove it
     baseFileName = a[0].replace("c:\\fakepath\\", "");
     return baseFileName;
   }
@@ -339,17 +327,17 @@ class AddData {
   getKmlFile(kmzFile) {
     var zip = new JSZip();
     return zip.loadAsync(kmzFile).then((zip) => {
-        kmlfile = null;
-        zip.forEach((relPath, file) => {
-            if (relPath.split(".").pop() === "kml" && kmlfile === null) {
-                kmlfile = file.async("blob").then(function (fileData) {
-                    return new File([fileData], file.name);
-                });
-            }
-        });
-        return kmlfile;
+      var kmlfile = null;
+      zip.forEach((relPath, file) => {
+        if (relPath.split(".").pop() === "kml" && kmlfile === null) {
+          kmlfile = file.async("blob").then(function (fileData) {
+            return new File([fileData], file.name);
+          });
+        }
+      });
+      return kmlfile;
     });
-}
+  }
 
   generatekmllayer(fileInfo, callback) {
     require([
@@ -361,16 +349,6 @@ class AddData {
       "dojo/_base/array"
     ], function (esriRequest, KMLLayer, FeatureLayer,
       lang, dojoJson, arrayUtils) {
-      var job = {
-        map: dis.map,
-        sharingUrl: "http://utilitygis.lntecc.com/portal/sharing/rest",
-        baseFileName: fileInfo.baseFileName,
-        fileName: fileInfo.fileName,
-        fileType: fileInfo.fileType,
-        generalize: true,
-        publishParameters: {},
-        numFeatures: 0,
-      };
       var reader = new FileReader();
       reader.onerror = function (err) {
         callback("error");
@@ -402,7 +380,6 @@ class AddData {
             {
               url: this.serviceUrl,
               content: {
-                /*url: this._url.path + this._getQueryParameters(map),*/
                 kmlString: encodeURIComponent(v),
                 model: "simple",
                 folders: "",
@@ -575,5 +552,133 @@ class AddData {
     dis.map.addLayer(lyr);
     dis.addAddedLayer(lyrname);
     $(".add-data-loading").hide();
+  }
+
+  addShapeFile(zipFile, ftype) {
+    require([
+      "dojo/Deferred"
+    ], function (Deferred) {
+      var job = {
+        map: dis.map,
+        sharingUrl: "https://sanw6iv2krkh1jmj.maps.arcgis.com/sharing/rest",
+        baseFileName: dis.getBaseFileName(zipFile.name),
+        fileName: zipFile.name,
+        fileType: ftype,
+        generalize: true,
+        publishParameters: {},
+        numFeatures: 0
+      };
+      var fileName = zipFile.name;
+      var self = dis, formData = new FormData();
+      formData.append("file", zipFile);
+      var dfd = new Deferred();
+      dfd.resolve(null);
+      dfd.then(function (response) {
+        if (response && response.publishParameters && response.publishParameters.locationType &&
+          response.publishParameters.locationType === "unknown") {
+          alertify.error("Something went wrong");
+          return;
+        }
+        return self.generateFeatures(job, formData, function(response) {
+          self.addFeatures(job, response.featureCollection);
+        alertify.success("Layer added successfully");
+        });
+      }).otherwise(function (error) {
+        alertify.error("Failed to load layer")
+        return
+      });
+    });
+  }
+
+  generateFeatures(job, formData, callback) {
+    require([
+      "esri/request",
+      "esri/geometry/scaleUtils",
+      "dojo/_base/lang"
+    ], function (esriRequest, scaleUtils,
+      lang) {
+      var url = job.sharingUrl + "/content/features/generate";
+      job.publishParameters = job.publishParameters || {};
+      var params = lang.mixin(job.publishParameters, {
+        name: job.baseFileName,
+        targetSR: job.map.spatialReference,
+        maxRecordCount: 100000,
+        enforceInputFileSizeLimit: true,
+        enforceOutputJsonSizeLimit: true
+      });
+      if (job.generalize) {
+        // 1:40,000
+        var extent = scaleUtils.getExtentForScale(job.map, 40000);
+        var resolution = extent.getWidth() / job.map.width;
+        params.generalize = true;
+        params.maxAllowableOffset = resolution;
+        // 1:4,000
+        resolution = resolution / 10;
+        var numDecimals = 0;
+        while (resolution < 1) {
+          resolution = resolution * 10;
+          numDecimals++;
+        }
+        params.reducePrecision = true;
+        params.numberOfDigitsAfterDecimal = numDecimals;
+      }
+      var content = {
+        f: "json",
+        filetype: job.fileType.toLowerCase(),
+        publishParameters: JSON.stringify(params)
+      };
+      esriRequest({
+        url: url,
+        content: content,
+        form: formData,
+        handleAs: "json"
+      }).then(function(resp) {callback(resp)});
+    });
+  }
+
+  addFeatures(job, featureCollection) {
+    require([
+      "esri/layers/FeatureLayer",
+      "dojo/_base/array"
+    ], function (FeatureLayer, array) {
+      //var triggerError = null; triggerError.length;
+      var fullExtent, layers = [], map = job.map, nLayers = 0;
+      if (featureCollection.layers) {
+        nLayers = featureCollection.layers.length;
+      }
+      array.forEach(featureCollection.layers, function (layer) {
+        var layername = layer.layerDefinition.name
+        var featureLayer = new FeatureLayer(layer, {
+          id: layername,
+          name: layername,
+          outFields: ["*"]
+        });
+        featureLayer.xtnAddData = true;
+        if (featureLayer.graphics) {
+          job.numFeatures += featureLayer.graphics.length;
+        }
+        if (nLayers === 0) {
+          featureLayer.name = job.baseFileName;
+        }
+        if (featureLayer.fullExtent) {
+          var extentCenter = featureLayer.fullExtent.getCenter();
+          if (extentCenter.x && extentCenter.y) {
+            if (!fullExtent) {
+              fullExtent = featureLayer.fullExtent;
+            } else {
+              fullExtent = fullExtent.union(featureLayer.fullExtent);
+            }
+          }
+        }
+        dis.addLayerOnMap(featureLayer, layername);
+        layers.push(featureLayer);
+      });
+      if (layers.length > 0) {
+        // map.addLayers(layers);
+        if (fullExtent) {
+          map.setExtent(fullExtent.expand(1.25), true);
+        }
+      }
+    });
   }
 }

@@ -71,9 +71,8 @@
 }
 
 .ad-layer-container {
-  height: calc(100% - 12vh);
+  height: calc(100% - 24vh);
   overflow: auto;
-  padding-top: 9px;
 }
 
 .ad-alayer {
@@ -162,4 +161,8 @@
 .add-data-loading {
   display: none;
   margin-right: 0.5vw;
+}
+
+.ad-various-inputs {
+  height: 24vh;
 }
