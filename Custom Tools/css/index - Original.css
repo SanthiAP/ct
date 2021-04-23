@@ -1,0 +1,473 @@
+html, body, .page-container {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-family: Calibri;
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-container {
+  width: 100%;
+  height: 11vh;
+  display: flex;
+  justify-content: center;
+  background: #01015b;
+  color: white;
+}
+
+.content-container {
+  width: 100%;
+  height: calc(100% - 11vh);
+  padding: 0;
+  margin: 0;
+}
+
+#map-container {
+  transition: .5s;
+  width: 100%;
+  height: 100%;
+}
+
+.sidenav-container {
+  height: calc(98% - 11vh);
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 11vh;
+  right: 0;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 0.5%;
+  border-radius: 8px;
+  background: #d0d0ee;
+  transition: 0.5s;
+}
+
+.all-tool-content {
+  height: calc(100% - 10vh);
+  width: calc(100% - 20px);
+  overflow: hidden;
+  padding: 10px;
+}
+
+.side-nav-header {
+  height: 10vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  background: #01015b;
+  color: white;
+}
+
+.side-nav-header h3 {
+  margin: auto;
+}
+
+.side-nav-header svg {
+  font-size: large;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+#map-div {
+  width: 100%;
+  height: 100%;
+  transition: 0.5s;
+}
+
+.esriSimpleSliderTL {
+  display: none;
+}
+
+.bm-input-container {
+  width: 100%;
+  height: 7vh;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.bm-content-container {
+  width: 100%;
+  height: calc(100% - 10vh);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  overflow: auto;
+}
+
+.bm-input {
+  height: 4.5vh;
+  border-radius: 4px;
+  outline: none;
+  border: none;
+  padding-left: 12px;
+}
+
+.bm-input:focus {
+  box-shadow: 0 0 5px #43D1AF;
+}
+
+.bm-btn, .save-edit-bm {
+  height: 4.5vh;
+  border-radius: 4px;
+  outline: none;
+  border: none;
+  background: #01015b;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.bm-single {
+  width: 100%;
+  height: 6vh;
+  background: #01015b;
+  border-radius: 4px;
+  margin: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  color: white;
+}
+
+.bm-btn svg, .bm-btn i {
+  display: none;
+}
+
+.bm-single a {
+  color: white;
+  align-items: center;
+  display: flex;
+}
+
+.bm-single a:hover {
+  color: white;
+  font-weight: bold;
+}
+
+.bm-single .fa-trash-alt:hover {
+  color: red;
+  cursor: pointer;
+}
+
+.bm-single .fa-edit:hover {
+  cursor: pointer;
+}
+
+.bm-edit-tools {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bm-edit {
+  margin-right: 2vw;
+}
+
+.save-edit-bm .fa-save {
+  font-size: large;
+  font-weight: bold;
+}
+
+.bm-edit-items {
+  display: none;
+}
+
+.tools-ind-container {
+  height: 100%;
+}
+
+input {
+  outline: none;
+}
+
+.draw-accordion .draw-mode-inner {
+  display: none;
+  height: 40vh;
+  overflow: auto;
+}
+
+.draw-accordion li {
+  margin: 0.5em 0;
+}
+
+.draw-accordion li a.draw-mode-toggle {
+  display: block;
+  background: rgb(1, 1, 91);
+  color: #fefefe;
+  padding: 0.75em;
+  border-radius: 0.15em;
+  transition: background 0.3s ease;
+}
+
+.draw-accordion li a.draw-mode-toggle:hover {
+  background: rgb(1, 1, 61);
+}
+
+.draw-accordion {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul.draw-point-tabs {
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+  height: 9vh;
+}
+
+ul.draw-point-tabs li {
+  background: none;
+  color: #222;
+  display: inline-block;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+ul.draw-point-tabs li.draw-current {
+  background: #ededed;
+  color: #222;
+}
+
+.draw-point-tab-content {
+  display: none;
+  background: #ededed;
+  padding: 15px;
+  height: calc(100% - 9vh - 30px);
+}
+
+.draw-point-tab-content.draw-current {
+  display: inherit;
+}
+
+.file-drop-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 75%;
+  padding: 15px;
+  border: 1px dashed rgb(1 1 91);
+  border-radius: 3px;
+  transition: 0.2s;
+}
+
+.file-drop-area.is-active {
+  background-color: rgb(140, 255, 118);
+}
+
+.fake-btn {
+  flex-shrink: 0;
+  background-color: rgb(1 1 91);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  padding: 8px 15px;
+  margin-right: 10px;
+  color: white;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.file-msg {
+  font-size: small;
+  font-weight: 300;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.file-input:focus {
+  outline: none;
+}
+
+.draw-point-pic {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#clear-pt-pic-selection {
+  height: 5vh;
+  background: #b31011;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.flex-div {
+  display: flex;
+}
+
+.draw-pt-opts {
+  padding: 15px;
+  align-items: center;
+  width: calc(100% - 30px);
+  justify-content: space-around;
+}
+
+.pt-draw-btn {
+  border-radius: 4px;
+  border: none;
+  outline: none;
+  color: white;
+  background: #01015b;
+  padding: 8px;
+  width: 50px;
+  height: 34px;
+  cursor: pointer;
+}
+
+#save-draw-points, #save-sym-draw-points,
+#save-draw-line {
+  background: #015b21;
+}
+
+#draw-multipoint, #draw-sym-multipoint {
+  font-size: 10px;
+}
+
+#draw-point-deactivate, #draw-sym-point-deactivate,
+#draw-line-deactivate, #draw-polygon-deactivate {
+  background: #9c9702;
+}
+
+#delete-draw-points, #delete-sym-draw-points,
+#delete-draw-line {
+  background: #9c0202;
+  display: none;
+}
+
+.pt-color-label, #pt-style {
+  display: flex !important;
+}
+
+#pt-colorSelector div, #line-colorSelector div {
+  background-color: rgb(40, 40, 133);
+  width: 100%;
+  height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#pt-style, #line-style {
+  height: 100px;
+  background: white;
+  padding: 6px;
+  overflow: auto;
+  display: flex;
+  justify-content: space-around;
+  font-size: 30px;
+  flex-flow: wrap;
+}
+
+#pt-style div, #line-style div {
+  padding: 6px;
+  width: 46px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+#line-style div {
+  width: auto;
+  height: auto;
+}
+
+#pt-style div#pt-diamond .fa-square {
+  transform: rotate(45deg);
+}
+
+#pt-style div[title="Triangle"] .fa-caret-up {
+  font-size: 50px;
+}
+
+#pt-style div[title="Circle"], #pt-style div[title="Square"], #pt-style div[title="Diamond"] {
+  font-size: 22px;
+}
+
+#pt-style div:hover, .selected-pt-symbol {
+  background: #01015b;
+  color: white;
+  cursor: pointer;
+}
+
+#line-style div svg:hover path, .selected-line-symbol path {
+  stroke: white;
+}
+
+#line-style div svg:hover, .selected-line-symbol {
+  background: #01015b;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#pt-symbol-preview {
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  width: 30px;
+  align-items: center;
+}
+
+.padding-accordion {
+  padding: 10px;
+}
+
+#line-style {
+  width: 55%;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+#line-symbol-preview {
+  display: flex;
+  justify-content: center;
+  height: 35px;
+  align-items: center;
+}
+
+#draw-line {
+  background-image: url(../images/draw_line_1.png);
+}
+
+#draw-polyline {
+  background-image: url(../images/draw_polyline_1.png);
+}
+
+#draw-freehand-polyline {
+  background-image: url(../images/draw_freehand_polyline_1.png);
+}
+
+.line-btns {
+  background-size: 37px;
+  background-repeat: no-repeat;
+  width: 37px;
+}
+
+.line-draw-opts {
+  padding: 0 15px 15px 15px;
+}

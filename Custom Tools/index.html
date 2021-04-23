@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom App</title>
+  <link rel="icon" href="images/globe.gif" type="image/gif" sizes="16x16">
+
+  <!-- Jquery -->
+  <script src="node_modules/jquery/dist/jquery.min.js"></script>
+
+  <!-- JSZip -->
+  <script src="node_modules/jszip/dist/jszip.min.js"></script>
+
+  <!-- color picker -->
+  <script src="vendor/colorpicker/js/colorpicker.js"></script>
+  <link rel="stylesheet" href="vendor/colorpicker/css/colorpicker.css">
+
+  <!-- Perfect scrollbar -->
+  <link rel="stylesheet" href="node_modules/perfect-scrollbar/css/perfect-scrollbar.css">
+  <script src="node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js"></script>
+
+  <!-- Alertify -->
+  <script src="node_modules/alertifyjs/build/alertify.min.js"></script>
+  <link rel="stylesheet" href="node_modules/alertifyjs/build/css/alertify.min.css">
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+  <script src="node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+
+  <!-- Arcgis -->
+  <script src="https://js.arcgis.com/3.35/"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/3.35/esri/css/esri.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/formStyle.css">
+  <link rel="stylesheet" href="css/circularMenu.css">
+  <link rel="stylesheet" href="css/addData.css">
+
+  <!-- Custom JS -->
+  <script src="data/lineSVGs.json"></script>
+  <script src="data/polygonSymbol.json"></script>
+  <script src="js/addData.js"></script>
+  <script src="js/index.js"></script>
+</head>
+
+<body>
+  <div class="page-loader">
+    <i class="fas fa-spinner fa-spin map-loader"></i>
+  </div>
+  <div class="page-container">
+    <div class="header-container">
+      <h2>Custom Application</h2>
+    </div>
+    <div class="content-container">
+      <div id="tools-content-container" class="sidenav-container">
+        <div class="side-nav-header">
+          <h3>Tool Heading</h3>
+          <i class="fas fa-times"></i>
+        </div>
+        <div class="all-tool-content">
+          <div id="tool-bm-container" class="tools-ind-container">
+            <div class="bm-input-container">
+              <input type="text" value="" placeholder="Enter Bookmark name..." id="bm-name" class="bm-input">
+              <button id="create-bm" class="bm-btn">
+                <i class="fas fa-spinner fa-spin"></i>
+                Create
+              </button>
+              <div>
+                <input type="checkbox" id="show-all-bm" name="show-all-bm">
+                <label for="show-all-bm"> Show All</label>
+              </div>
+            </div>
+            <div class="bm-content-container">
+            </div>
+          </div>
+          <div id="tool-draw-container" class="tools-ind-container">
+            <div id="draw-buttons-container">
+              <div id="draw-point-btn" class="draw-buttons">
+                <img src="images/draw_point.png" alt="Point">
+                <span>Point</span>
+              </div>
+              <div id="draw-line-btn" class="draw-buttons">
+                <img src="images/draw_line.png" alt="Line">
+                <span>Line</span>
+              </div>
+              <div id="draw-polyline-btn" class="draw-buttons">
+                <img src="images/draw_polyline.png" alt="Polyline">
+                <span>Polyline</span>
+              </div>
+              <div id="draw-freehand-polyline-btn" class="draw-buttons">
+                <img src="images/draw_freehand_polyline.png" alt="Freehand Polyline">
+                <span>Freehand Polyline</span>
+              </div>
+              <div id="draw-polygon-triangle-btn" class="draw-buttons">
+                <img src="images/draw_polygon_triangle.png" alt="Triangle">
+                <span>Triangle</span>
+              </div>
+              <div id="draw-polygon-rectangle-btn" class="draw-buttons">
+                <img src="images/draw_polygon_rectangle.png" alt="Rectangle">
+                <span>Rectangle</span>
+              </div>
+              <div id="draw-polygon-circle-btn" class="draw-buttons">
+                <img src="images/draw_polygon_circle.png" alt="Circle">
+                <span>Circle</span>
+              </div>
+              <div id="draw-polygon-ellipse-btn" class="draw-buttons">
+                <img src="images/draw_polygon_ellipse.png" alt="Ellipse">
+                <span>Ellipse</span>
+              </div>
+              <div class="last-row-draw-btns">
+                <div id="draw-polygon-btn" class="draw-buttons">
+                  <img src="images/draw_polygon.png" alt="Polygon">
+                  <span>Polygon</span>
+                </div>
+                <div id="draw-freehand-polygon-btn" class="draw-buttons">
+                  <img src="images/draw_freehand_polygon.png" alt="Freehand Polygon">
+                  <span>Freehand Polygon</span>
+                </div>
+                <div id="draw-text-btn" class="draw-buttons">
+                  <img src="images/draw_text.png" alt="Text">
+                  <span>Text</span>
+                </div>
+              </div>
+            </div>
+            <div id="draw-options-container">
+              <div class="draw-go-2-back">
+                <div class="draw-back-btn">
+                  <i class="fas fa-angle-left"></i>
+                  <span>Back</span>
+                </div>
+                <div class="draw-opt-header">
+                  <span id="draw-option-header">Test Header</span>
+                </div>
+              </div>
+              <div id="draw-point-container" class="draw-mode-inner">
+                <ul class="draw-point-tabs">
+                  <li class="draw-point-tab-link draw-current" data-tab="draw-pic">Picture</li>
+                  <li class="draw-point-tab-link" data-tab="draw-sym">Symbol</li>
+                </ul>
+
+                <div id="draw-pic" class="draw-point-tab-content draw-current">
+                  <div class="draw-point-pic">
+                    <div class="file-drop-area">
+                      <span class="fake-btn">Choose files</span>
+                      <span class="file-msg">or drag and drop files here</span>
+                      <input id="draw-point-picture" class="file-input" type="file">
+                    </div>
+                    <button id="clear-pt-pic-selection"> Clear </button>
+                  </div>
+
+                  <div class="flex-div draw-pt-opts">
+                    <button id="draw-point" class="pt-draw-btn">
+                      <i class="fas fa-circle"></i>
+                    </button>
+                    <button id="draw-multipoint" class="pt-draw-btn">
+                      <i class="fas fa-circle"></i>
+                      <i class="fas fa-circle"></i>
+                      <i class="fas fa-circle"></i>
+                    </button>
+                    <button id="draw-point-deactivate" class="pt-draw-btn">
+                      <i class="fas fa-ban"></i>
+                    </button>
+                    <button id="save-draw-points" class="pt-draw-btn">
+                      <i class="fas fa-save"></i>
+                    </button>
+                    <button id="delete-draw-points" class="pt-draw-btn">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                <div id="draw-sym" class="draw-point-tab-content">
+                  <div class="form-style">
+                    <label for="pt-color" class="pt-color-label"><span>Color <span class="required">*</span></span>
+                      <div id="pt-colorSelector">
+                        <div style="background-color: #0000ff"></div>
+                      </div>
+                    </label>
+                    <label for="pt-size"><span>Size <span class="required">*</span></span>
+                      <input id="pt-size" type="number" class="input-field" name="pt-size" value="12" min="5"
+                        max="30" />
+                    </label>
+                    <label for="pt-angle"><span>Angle <span class="required">*</span></span>
+                      <input id="pt-angle" type="number" class="input-field" name="pt-angle" value="0" min="-360"
+                        max="360" />
+                    </label>
+                    <label for="pt-style"><span>Style<span class="required">*</span></span>
+                      <div id="pt-style">
+                        <div title="Triangle" value="esriSMSTriangle">
+                          <i class="fas fa-caret-up"></i>
+                        </div>
+                        <div title="Circle" value="esriSMSCircle">
+                          <i class="fas fa-circle"></i>
+                        </div>
+                        <div title="Square" value="esriSMSSquare">
+                          <i class="fas fa-square"></i>
+                        </div>
+                        <div title="Cross" value="esriSMSCross">
+                          <i class="fas fa-plus"></i>
+                        </div>
+                        <div title="X" value="esriSMSX">
+                          <i class="fas fa-times"></i>
+                        </div>
+                        <div id="pt-diamond" title="Diamond" value="esriSMSDiamond">
+                          <i class="fas fa-square"></i>
+                        </div>
+                      </div>
+                    </label>
+                    <label for="pt-symbol-preview" class="pt-color-label">
+                      <span>Preview</span>
+                      <div id="pt-symbol-preview"></div>
+                    </label>
+                    <div class="flex-div draw-pt-opts">
+                      <button id="draw-sym-point" class="pt-draw-btn">
+                        <i class="fas fa-circle"></i>
+                      </button>
+                      <button id="draw-sym-multipoint" class="pt-draw-btn">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                      </button>
+                      <button id="draw-sym-point-deactivate" class="pt-draw-btn">
+                        <i class="fas fa-ban"></i>
+                      </button>
+                      <button id="save-sym-draw-points" class="pt-draw-btn">
+                        <i class="fas fa-save"></i>
+                      </button>
+                      <button id="delete-sym-draw-points" class="pt-draw-btn">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="draw-line-container" class="draw-mode-inner padding-accordion">
+                <div class="form-style">
+                  <label for="line-color" class="pt-color-label"><span>Color <span class="required">*</span></span>
+                    <div id="line-colorSelector">
+                      <div style="background-color: #0000ff"></div>
+                    </div>
+                  </label>
+                  <label for="line-size"><span>Size <span class="required">*</span></span>
+                    <input id="line-size" type="number" class="input-field" name="line-size" value="1" min="1"
+                      max="10" />
+                  </label>
+                  <label for="line-style"><span>Style<span class="required">*</span></span>
+                    <div id="line-style">
+                      <div title="Solid">
+                        <svg overflow="hidden" width="36" height="36" style="touch-action: none;">
+                          <defs></defs>
+                          <path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1"
+                            stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"
+                            path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="none" dojoGfxStrokeStyle="solid"
+                            transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)">
+                          </path>
+                        </svg>
+                      </div>
+                      <div title="Dash">
+                        <svg overflow="hidden" width="36" height="36" style="touch-action: none;">
+                          <defs></defs>
+                          <path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1"
+                            stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"
+                            path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="16,12" dojoGfxStrokeStyle="dash"
+                            transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)">
+                          </path>
+                        </svg>
+                      </div>
+                      <div title="Dot">
+                        <svg overflow="hidden" width="36" height="36" style="touch-action: none;">
+                          <defs></defs>
+                          <path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1"
+                            stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"
+                            path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="4,12" dojoGfxStrokeStyle="dot"
+                            transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)">
+                          </path>
+                        </svg>
+                      </div>
+                      <div title="Dash Dot">
+                        <svg overflow="hidden" width="36" height="36" style="touch-action: none;">
+                          <defs></defs>
+                          <path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1"
+                            stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"
+                            path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="16,12,4,12"
+                            dojoGfxStrokeStyle="dashdot"
+                            transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)">
+                          </path>
+                        </svg>
+                      </div>
+                      <div title="Dash Dot Dot">
+                        <svg overflow="hidden" width="36" height="36" style="touch-action: none;">
+                          <defs></defs>
+                          <path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1"
+                            stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"
+                            path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="32,12,4,12,4,12"
+                            dojoGfxStrokeStyle="longdashdotdot"
+                            transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)">
+                          </path>
+                        </svg>
+                      </div>
+                    </div>
+                  </label>
+                  <label for="line-symbol-preview" class="pt-color-label">
+                    <span>Preview</span>
+                    <div id="line-symbol-preview">
+
+                    </div>
+                  </label>
+                  <div class="flex-div draw-pt-opts line-draw-opts">
+                    <button id="draw-line" class="pt-draw-btn line-btns">
+                    </button>
+                    <button id="draw-polyline" class="pt-draw-btn line-btns">
+                    </button>
+                    <button id="draw-freehand-polyline" class="pt-draw-btn line-btns">
+                    </button>
+                    <button id="draw-line-deactivate" class="pt-draw-btn line-btns">
+                      <i class="fas fa-ban"></i>
+                    </button>
+                    <button id="save-draw-line" class="pt-draw-btn line-btns">
+                      <i class="fas fa-save"></i>
+                    </button>
+                    <button id="delete-draw-line" class="pt-draw-btn line-btns">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div id="draw-polygon-container" class="draw-mode-inner">
+                <div class="form-style">
+                  <label for="polygon-style" class="pt-color-label"><span>Style <span class="required">*</span></span>
+                    <select name="polygon-style" id="polygon-style" class="select-field">
+                      <option value="esriSFSBackwardDiagonal">Backword Diagonal</option>
+                      <option value="esriSFSCross">Cross</option>
+                      <option value="esriSFSDiagonalCross">Diagonal Cross</option>
+                      <option value="esriSFSForwardDiagonal">Forward Diagonal</option>
+                      <option value="esriSFSHorizontal">Horizontal</option>
+                      <option value="esriSFSNull">Empty</option>
+                      <option value="esriSFSSolid">Solid</option>
+                      <option value="esriSFSVertical">Vertical</option>
+                      <option value="picture">Picture</option>
+                    </select>
+                  </label>
+                  <label id="polygon-color" for="polygon-color"><span>Color <span class="required">*</span></span>
+                    <div id="polygon-colorSelector">
+                      <div style="background-color: #0000ff"></div>
+                    </div>
+                  </label>
+                  <div id="polygon-pic-fill" class="draw-point-pic">
+                    <div class="file-drop-area">
+                      <span class="fake-btn">Choose files</span>
+                      <span id="polygon-fill-img-preview" class="file-msg">or drag and drop files here</span>
+                      <input id="draw-polygon-picture" class="file-input" type="file">
+                    </div>
+                    <button id="clear-polygon-pic-selection"> Clear </button>
+                  </div>
+                  <label id="polygon-opacity" for="polygon-fill-opacity"><span>Transparency <span
+                        class="required">*</span></span>
+                    <div class="poly-trans-container">
+                      <input type="range" min="1" max="100" value="50" class="polygon-fill-opacity-slider"
+                        id="poly-fill-transp-slider">
+                      <input class="trans-inp" type="text" value="50" id="poly-trans-input">
+                    </div>
+                  </label>
+                  <label for="polygon-outline-color" class="pt-color-label"><span>Outline Color <span
+                        class="required">*</span></span>
+                    <div id="polygon-outline-colorSelector">
+                      <div style="background-color: #0000ff"></div>
+                    </div>
+                  </label>
+                  <label for="polygon-line-size"><span>Outline Size <span class="required">*</span></span>
+                    <input id="polygon-line-size" type="number" class="input-field" name="line-size" value="1" min="1"
+                      max="10" />
+                  </label>
+                  <label for="polygon-outline-style"><span>Outline Style<span class="required">*</span></span>
+                    <div id="polygon-outline-style">
+                      <div title="Solid">
+                        <svg class="selected-polygon-outline-symbol" overflow="hidden" width="36" height="36"
+                          style="touch-action: none;">
+                          <defs></defs>
+                          <path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1"
+                            stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"
+                            path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="none" dojoGfxStrokeStyle="solid"
+                            transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)">
+                          </path>
+                        </svg>
+                      </div>
+                      <div title="Dash">
+                        <svg overflow="hidden" width="36" height="36" style="touch-action: none;">
+                          <defs></defs>
+                          <path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1"
+                            stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"
+                            path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="16,12" dojoGfxStrokeStyle="dash"
+                            transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)">
+                          </path>
+                        </svg>
+                      </div>
+                      <div title="Dot">
+                        <svg overflow="hidden" width="36" height="36" style="touch-action: none;">
+                          <defs></defs>
+                          <path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1"
+                            stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"
+                            path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="4,12" dojoGfxStrokeStyle="dot"
+                            transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)">
+                          </path>
+                        </svg>
+                      </div>
+                      <div title="Dash Dot">
+                        <svg overflow="hidden" width="36" height="36" style="touch-action: none;">
+                          <defs></defs>
+                          <path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1"
+                            stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"
+                            path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="16,12,4,12"
+                            dojoGfxStrokeStyle="dashdot"
+                            transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)">
+                          </path>
+                        </svg>
+                      </div>
+                      <div title="Dash Dot Dot">
+                        <svg overflow="hidden" width="36" height="36" style="touch-action: none;">
+                          <defs></defs>
+                          <path fill="none" fill-opacity="0" stroke="rgb(79, 129, 189)" stroke-opacity="1"
+                            stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"
+                            path="M -15,0 L 15,0 E" d="M-15 0L 15 0" stroke-dasharray="32,12,4,12,4,12"
+                            dojoGfxStrokeStyle="longdashdotdot"
+                            transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,18.00000000,18.00000000)">
+                          </path>
+                        </svg>
+                      </div>
+                    </div>
+                  </label>
+                  <div class="flex-div draw-pt-opts line-draw-opts">
+                    <button id="draw-polygon" class="pt-draw-btn line-btns">
+                    </button>
+                    <button id="draw-freehand-polygon" class="pt-draw-btn line-btns">
+                    </button>
+                    </button>
+                    <button id="draw-polygon-triangle" class="pt-draw-btn line-btns">
+                    </button>
+                    </button>
+                    <button id="draw-polygon-rectangle" class="pt-draw-btn line-btns">
+                    </button>
+                    </button>
+                    <button id="draw-polygon-circle" class="pt-draw-btn line-btns">
+                    </button>
+                    </button>
+                    <button id="draw-polygon-ellipse" class="pt-draw-btn line-btns">
+                    </button>
+                    <button id="draw-polygon-deactivate" class="pt-draw-btn line-btns">
+                      <i class="fas fa-ban"></i>
+                    </button>
+                    <button id="save-draw-polygon" class="pt-draw-btn line-btns">
+                      <i class="fas fa-save"></i>
+                    </button>
+                    <button id="delete-draw-polygon" class="pt-draw-btn line-btns">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div id="draw-text-container" class="draw-mode-inner">
+                <div class="form-style">
+                  <label for="text-text"><span>Text <span class="required">*</span></span>
+                    <input id="text-text" type="text" class="input-field" name="text-text" value="Text" placeholder="Please enter text..."/>
+                  </label>
+                  <label id="text-color" for="text-color"><span>Color <span class="required">*</span></span>
+                    <div id="text-colorSelector">
+                      <div style="background-color: #0000ff"></div>
+                    </div>
+                  </label>
+                  <label for="text-hori-alignment">
+                    <span class="no-padding">Horizontal Alignment <span class="required">*</span></span>
+                    <select name="text-hori-alignment" id="text-hori-alignment" class="select-field">
+                      <option value="left">Left</option>
+                      <option value="right">Right</option>
+                      <option value="center">Center</option>
+                      <option value="justify">Justify</option>
+                    </select>
+                  </label>
+                  <label for="text-vert-alignment">
+                    <span class="no-padding">Vertical Alignment <span class="required">*</span></span>
+                    <select name="text-vert-alignment" id="text-vert-alignment" class="select-field">
+                      <option value="baseline">Baseline</option>
+                      <option value="top">Top</option>
+                      <option value="middle">Middle</option>
+                      <option value="bottom">Bottom</option>
+                    </select>
+                  </label>
+                  <label for="text-angle"><span>Angle <span class="required">*</span></span>
+                    <input id="text-angle" type="number" class="input-field" name="text-angle" value="0" min="-360" max="360" placeholder="Please enter text Angle.."/>
+                  </label>
+                  <label for="text-halo-apply">
+                    <input type="checkbox" id="text-halo-apply" name="text-halo-apply">
+                    Set text halo
+                  </label>
+                  <label id="text-halo-color" for="text-color"><span>Halo Color <span class="required">*</span></span>
+                    <div id="text-halo-colorSelector">
+                      <div style="background-color: #0000ff"></div>
+                    </div>
+                  </label>
+                  <label id="text-halo-width-container" for="text-halo-width"><span>halo width <span class="required">*</span></span>
+                    <input id="text-halo-width" type="number" class="input-field" name="text-halo-width" value="1" min="1" max="10" placeholder="Please enter text halo width.."/>
+                  </label>
+                  <label for="font">Font Style</label><hr>
+                  <label for="text-family"><span>Family <span class="required">*</span></span>
+                    <input id="text-family" type="text" class="input-field" name="text-family" value="Serif" placeholder="Please enter text Family.."/>
+                  </label>
+                  <label for="text-font-size"><span>Size <span class="required">*</span></span>
+                    <input id="text-font-size" type="number" class="input-field" name="text-font-size" value="12" min="10" max="30" placeholder="Please enter text size.."/>
+                  </label>
+                  <label for="text-font-style"><span>Style <span class="required">*</span></span>
+                    <select name="text-font-style" id="text-font-style" class="select-field">
+                      <option value="italic">Italic</option>
+                      <option value="normal">Normal</option>
+                      <option value="oblique">Oblique</option>
+                    </select>
+                  </label>
+                  <label for="text-font-weight"><span>Weight <span class="required">*</span></span>
+                    <select name="text-font-weight" id="text-font-weight" class="select-field">
+                      <option value="bold">Bold</option>
+                      <option value="normal">Normal</option>
+                      <option value="bolder">Bolder</option>
+                      <option value="lighter">Lighter</option>
+                    </select>
+                  </label>
+                  <label for="text-font-decoration"><span>Decoration <span class="required">*</span></span>
+                    <select name="text-font-decoration" id="text-font-decoration" class="select-field">
+                      <option value="line-through">Line through</option>
+                      <option value="none">None</option>
+                      <option value="underline">Underline</option>
+                    </select>
+                  </label>
+                  <div class="flex-div draw-pt-opts line-draw-opts">
+                    <button id="draw-text" class="pt-draw-btn line-btns">
+                    </button>
+                    <button id="draw-text-deactivate" class="pt-draw-btn line-btns">
+                      <i class="fas fa-ban"></i>
+                    </button>
+                    <button id="save-draw-text" class="pt-draw-btn line-btns">
+                      <i class="fas fa-save"></i>
+                    </button>
+                    <button id="delete-draw-text" class="pt-draw-btn line-btns">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tool-adddata-container" class="tools-ind-container">
+
+          </div>
+        </div>
+      </div>
+
+      <div id="map-container">
+        <div id="map-div"></div>
+        <section class="menu menu--circle">
+          <input type="checkbox" id="menu__active" />
+          <label for="menu__active" class="menu__active">
+            <div class="menu__toggle">
+              <div class="icon">
+                <div class="hamburger"></div>
+              </div>
+            </div>
+            <input type="radio" name="arrow--up" id="degree--up-0" />
+            <input type="radio" name="arrow--up" id="degree--up-1" />
+            <input type="radio" name="arrow--up" id="degree--up-2" />
+            <div class="menu__listings">
+              <ul class="circle">
+                <li>
+                  <div class="placeholder">
+                    <div class="upside">
+                      <a id="tool-bm" href="#" class="button"><i class="fas fa-bookmark"></i></a>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="placeholder">
+                    <div class="upside">
+                      <a id="tool-draw" href="#" class="button"><i class="fas fa-pencil-alt"></i></a>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="placeholder">
+                    <div class="upside">
+                      <a href="#">&nbsp</a>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="placeholder">
+                    <div class="upside">
+                      <a href="#" class="button"><i class="fas fa-plus-square"></i></a>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="placeholder">
+                    <div class="upside">
+                      <a href="#" class="button"><i class="fa fa-trash"></i></a>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="placeholder">
+                    <div class="upside">
+                      <a href="#" class="button"><i class="fa fa-battery-4"></i></a>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="placeholder">
+                    <div class="upside">
+                      <a href="#" class="button"><i class="fa fa-calendar"></i></a>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="placeholder">
+                    <div class="upside">
+                      <a href="#" class="button"><i class="fa fa-cloud"></i></a>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="placeholder">
+                    <div class="upside">
+                      <a href="#" class="button"><i class="fa fa-wifi"></i></a>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="placeholder">
+                    <div class="upside">
+                      <a id="tool-adddata" href="#" class="button"><i class="fas fa-plus-square"></i></a>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="menu__arrow menu__arrow--top">
+              <ul>
+                <li>
+                  <label for="degree--up-0">
+                    <div class="arrow"></div>
+                  </label>
+                  <label for="degree--up-1">
+                    <div class="arrow"></div>
+                  </label>
+                  <label for="degree--up-2">
+                    <div class="arrow"></div>
+                  </label>
+                </li>
+              </ul>
+            </div>
+          </label>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

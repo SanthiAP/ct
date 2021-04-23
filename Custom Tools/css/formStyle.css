@@ -1,0 +1,50 @@
+.form-style {
+	height: 100%;
+	overflow: auto;
+}
+
+.form-style label {
+	display: block;
+	margin: 0px 0px 10px 0px;
+}
+
+.form-style label>span {
+	width: 100px;
+	font-weight: bold;
+	float: left;
+	padding-top: 8px;
+	padding-right: 5px;
+	padding: 8px 5px 0px 15px;
+}
+
+.form-style span.required {
+	color: red;
+}
+
+.form-style input.input-field, .form-style .select-field, 
+#pt-colorSelector, #line-colorSelector, #polygon-colorSelector, 
+#polygon-outline-colorSelector, #text-colorSelector, #text-halo-colorSelector {
+	width: 64%;
+}
+
+.form-style input.input-field, 
+.form-style .tel-number-field, 
+.form-style .textarea-field, 
+.form-style .select-field {
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	border: 1px solid #C2C2C2;
+	box-shadow: 1px 1px 4px #EBEBEB;
+	-moz-box-shadow: 1px 1px 4px #EBEBEB;
+	-webkit-box-shadow: 1px 1px 4px #EBEBEB;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	padding: 7px;
+	outline: none;
+}
+
+.form-style .input-field:focus, .form-style .tel-number-field:focus, .form-style .textarea-field:focus, .form-style .select-field:focus {
+	border: 1px solid #0C0;
+}

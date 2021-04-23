@@ -1,0 +1,677 @@
+html, body, .page-container {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-family: Calibri;
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-container {
+  width: 100%;
+  height: 11vh;
+  display: flex;
+  justify-content: center;
+  background: #01015b;
+  color: white;
+}
+
+.content-container {
+  width: 100%;
+  height: calc(100% - 11vh);
+  padding: 0;
+  margin: 0;
+}
+
+#map-container {
+  transition: .5s;
+  width: 100%;
+  height: 100%;
+}
+
+.sidenav-container {
+  height: calc(98% - 11vh);
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 11vh;
+  right: 0;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 0.5%;
+  border-radius: 8px;
+  background: #d0d0ee;
+  transition: 0.5s;
+}
+
+.all-tool-content {
+  height: calc(100% - 10vh);
+  width: calc(100% - 10px);
+  overflow: hidden;
+  padding: 5px;
+}
+
+.side-nav-header {
+  height: 10vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  background: #01015b;
+  color: white;
+}
+
+.side-nav-header h3 {
+  margin: auto;
+}
+
+.side-nav-header svg {
+  font-size: large;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+#map-div {
+  width: 100%;
+  height: 100%;
+  transition: 0.5s;
+}
+
+.esriSimpleSliderTL {
+  display: none;
+}
+
+.bm-input-container {
+  width: 100%;
+  height: 7vh;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.bm-content-container {
+  width: 100%;
+  height: calc(100% - 10vh);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  overflow: auto;
+}
+
+.bm-input {
+  height: 4.5vh;
+  border-radius: 4px;
+  outline: none;
+  border: none;
+  padding-left: 12px;
+}
+
+.bm-input:focus {
+  box-shadow: 0 0 5px #43D1AF;
+}
+
+.bm-btn, .save-edit-bm {
+  height: 4.5vh;
+  border-radius: 4px;
+  outline: none;
+  border: none;
+  background: #01015b;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.bm-single {
+  width: 100%;
+  height: 6vh;
+  background: #01015b;
+  border-radius: 4px;
+  margin: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  color: white;
+}
+
+.bm-btn svg, .bm-btn i {
+  display: none;
+}
+
+.bm-single a {
+  color: white;
+  align-items: center;
+  display: flex;
+}
+
+.bm-single a:hover {
+  color: white;
+  font-weight: bold;
+}
+
+.bm-single .fa-trash-alt:hover {
+  color: red;
+  cursor: pointer;
+}
+
+.bm-single .fa-edit:hover {
+  cursor: pointer;
+}
+
+.bm-edit-tools {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bm-edit {
+  margin-right: 2vw;
+}
+
+.save-edit-bm .fa-save {
+  font-size: large;
+  font-weight: bold;
+}
+
+.bm-edit-items {
+  display: none;
+}
+
+.tools-ind-container {
+  height: 100%;
+}
+
+input {
+  outline: none;
+}
+
+.draw-accordion .draw-mode-inner {
+  display: none;
+  height: 40vh;
+  overflow: auto;
+}
+
+.draw-accordion li {
+  margin: 0.5em 0;
+}
+
+.draw-accordion li a.draw-mode-toggle {
+  display: block;
+  background: rgb(1, 1, 91);
+  color: #fefefe;
+  padding: 0.75em;
+  border-radius: 0.15em;
+  transition: background 0.3s ease;
+}
+
+.draw-accordion li a.draw-mode-toggle:hover {
+  background: rgb(1, 1, 61);
+}
+
+.draw-accordion {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul.draw-point-tabs {
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+  height: 7vh;
+}
+
+ul.draw-point-tabs li {
+  background: none;
+  color: #222;
+  display: inline-block;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+ul.draw-point-tabs li.draw-current {
+  background: #ededed;
+  color: #222;
+}
+
+.draw-point-tab-content {
+  display: none;
+  background: #ededed;
+  padding: 5px;
+  height: calc(100% - 7vh - 10px);
+  border-radius: 4px;
+}
+
+.draw-point-tab-content.draw-current {
+  display: inherit;
+}
+
+.file-drop-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 75%;
+  padding: 15px;
+  border: 1px dashed rgb(1 1 91);
+  border-radius: 3px;
+  transition: 0.2s;
+}
+
+.file-drop-area.is-active {
+  background-color: rgb(140, 255, 118);
+}
+
+.fake-btn {
+  flex-shrink: 0;
+  background-color: rgb(1 1 91);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  padding: 8px 15px;
+  margin-right: 10px;
+  color: white;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.file-msg {
+  font-size: small;
+  font-weight: 300;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.file-input:focus {
+  outline: none;
+}
+
+.draw-point-pic {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#clear-pt-pic-selection, #clear-polygon-pic-selection {
+  height: 5vh;
+  background: #b31011;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.flex-div {
+  display: flex;
+}
+
+.draw-pt-opts {
+  padding: 10px 15px;
+  align-items: center;
+  width: calc(100% - 30px);
+  justify-content: space-around;
+}
+
+.pt-draw-btn {
+  border-radius: 4px;
+  border: none;
+  outline: none;
+  color: white;
+  background: #01015b;
+  padding: 8px;
+  width: 50px;
+  height: 34px;
+  cursor: pointer;
+}
+
+#save-draw-points, #save-sym-draw-points, #save-draw-line, #save-draw-polygon, #save-draw-text {
+  background: #015b21;
+}
+
+#draw-multipoint, #draw-sym-multipoint {
+  font-size: 10px;
+}
+
+#draw-point-deactivate, #draw-sym-point-deactivate, #draw-line-deactivate, #draw-polygon-deactivate, #draw-text-deactivate {
+  background: #9c9702;
+}
+
+#delete-draw-points, #delete-sym-draw-points, #delete-draw-line, #delete-draw-polygon, #delete-draw-text {
+  background: #9c0202;
+  display: none;
+}
+
+.pt-color-label, #pt-style, #polygon-outline-style {
+  display: flex !important;
+}
+
+#pt-colorSelector div, #line-colorSelector div, #text-halo-colorSelector div, #polygon-colorSelector div, #polygon-outline-colorSelector div, #text-colorSelector div {
+  background-color: rgb(40, 40, 133);
+  width: 100%;
+  height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#pt-style, #line-style, #polygon-outline-style {
+  height: 36px;
+  width: 60.5%;
+  background: white;
+  padding: 6px;
+  overflow: auto;
+  display: flex;
+  justify-content: space-around;
+  font-size: 30px;
+  flex-flow: wrap;
+  border-radius: 3px;
+  border: 1px solid #C2C2C2;
+}
+
+#pt-style div, #line-style div, #polygon-outline-style div {
+  padding: 6px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+#line-style div, #line-style div, #polygon-outline-style div {
+  width: auto;
+  height: auto;
+  padding: 0;
+}
+
+#pt-style div#pt-diamond .fa-square {
+  transform: rotate(45deg);
+}
+
+#pt-style div[title="Triangle"] .fa-caret-up {
+  font-size: 40px;
+}
+
+#pt-style div[title="Circle"], #pt-style div[title="Square"], #pt-style div[title="Diamond"] {
+  font-size: 22px;
+}
+
+#pt-style div:hover, .selected-pt-symbol {
+  background: #01015b;
+  color: white;
+  cursor: pointer;
+}
+
+#line-style div svg:hover path, #polygon-outline-style div svg:hover path, .selected-line-symbol path, .selected-polygon-outline-symbol path {
+  stroke: white;
+}
+
+#line-style div svg:hover, .selected-line-symbol, #polygon-outline-style div svg:hover, .selected-polygon-outline-symbol {
+  background: #01015b;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#pt-symbol-preview {
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  width: 30px;
+  align-items: center;
+}
+
+.padding-accordion {
+  padding: 10px;
+}
+
+#line-style {
+  width: 60.5%;
+  border-radius: 4px;
+}
+
+#line-symbol-preview {
+  display: flex;
+  justify-content: center;
+  height: 35px;
+  align-items: center;
+}
+
+#draw-line {
+  background-image: url(../images/draw_line.png);
+}
+
+#draw-polyline {
+  background-image: url(../images/draw_polyline.png);
+}
+
+#draw-freehand-polyline {
+  background-image: url(../images/draw_freehand_polyline.png);
+}
+
+.line-btns {
+  background-size: 37px;
+  background-repeat: no-repeat;
+  width: 37px;
+}
+
+.line-draw-opts {
+  padding: 0 15px 15px 15px;
+}
+
+#draw-buttons-container {
+  height: 73%;
+  width: 100%;
+  display: inline-flex;
+  transition: 0.5s;
+  flex-direction: row;
+  flex-flow: wrap;
+  justify-content: space-around;
+}
+
+#draw-options-container {
+  display: none;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: 0.5s;
+}
+
+#draw-options-container .draw-mode-inner {
+  margin-top: 5px;
+  display: none;
+  height: calc(100% - 35px);
+}
+
+.draw-buttons {
+  display: flex;
+  justify-content: center;
+  width: 6vw;
+  background: #01015b;
+  flex-direction: column;
+  text-align: center;
+  height: 16vh;
+  align-items: center;
+  color: white;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.draw-buttons:hover {
+  background: #01015f;
+}
+
+.last-row-draw-btns {
+  display: flex;
+  justify-content: space-between;
+  width: 72%;
+}
+
+.draw-go-2-back {
+  display: flex;
+}
+
+.draw-go-2-back {
+  display: none;
+}
+
+.draw-back-btn {
+  width: 50px;
+  padding: 6px;
+  background: #01015b;
+  color: white;
+  cursor: pointer;
+}
+
+.draw-back-btn:hover {
+  background: #08086b;
+}
+
+.draw-opt-header {
+  width: calc(100% - 50px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+}
+
+#polygon-pic-fill {
+  display: none;
+  margin: 15px;
+}
+
+#draw-polygon {
+  background-image: url(../images/draw_polygon.png);
+}
+
+#draw-freehand-polygon {
+  background-image: url(../images/draw_freehand_polygon.png);
+}
+
+#draw-polygon-triangle {
+  background-image: url(../images/draw_polygon_triangle.png);
+}
+
+#draw-polygon-rectangle {
+  background-image: url(../images/draw_polygon_rectangle.png);
+}
+
+#draw-polygon-circle {
+  background-image: url(../images/draw_polygon_circle.png);
+}
+
+#draw-polygon-ellipse {
+  background-image: url(../images/draw_polygon_ellipse.png);
+}
+
+#draw-polygon-container {
+  margin-top: 12px !important;
+}
+
+.polygon-fill-opacity-slider {
+  -webkit-appearance: none;
+  width: 78%;
+  height: 12px;
+  background: white;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  border-radius: 12px;
+}
+
+.polygon-fill-opacity-slider:hover {
+  opacity: 1;
+}
+
+.polygon-fill-opacity-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 12px;
+  background: #01015b;
+  cursor: pointer;
+}
+
+.polygon-fill-opacity-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 12px;
+  background: #01015b;
+  cursor: pointer;
+}
+
+.poly-trans-container {
+  display: flex;
+  width: 64%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trans-inp {
+  width: 11%;
+  height: 25px;
+  border-radius: 4px;
+  border: 1px solid #C2C2C2;
+  padding-left: 6px;
+}
+
+#polygon-color, #polygon-opacity {
+  display: none;
+}
+
+#text-colorSelector, #text-halo-colorSelector {
+  display: flex;
+}
+
+.no-padding {
+  padding-top: 0 !important;
+}
+
+#draw-text {
+  background-image: url(../images/draw_text.png);
+}
+
+#text-halo-width-container, #text-halo-color {
+  display: none;
+}
+
+.esriSymbolEditor, .esri-halo-styler {
+  display: none !important;
+}
+
+.page-loader {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  height: 100%;
+  width: 100%;
+  z-index: 99;
+}
+
+.map-loader {
+  top: 50%;
+  left: 50%;
+  position: absolute;
+  font-size: xxx-large;
+  color: black;
+  z-index: 99;
+}

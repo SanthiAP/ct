@@ -1,0 +1,168 @@
+.add-data-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 12vh;
+}
+
+.add-data-file-drop-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 75%;
+  padding: 15px;
+  border: 1px dashed rgb(1 1 91);
+  border-radius: 3px;
+  transition: 0.2s;
+}
+
+.add-data-file-drop-area.is-active {
+  background-color: rgb(117, 204, 99);
+}
+
+.add-data-fake-btn {
+  flex-shrink: 0;
+  background-color: rgb(1 1 91);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  padding: 8px 15px;
+  margin-right: 10px;
+  color: white;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.add-data-file-msg {
+  font-size: small;
+  font-weight: 300;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.add-data-file-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.add-data-file-input:focus {
+  outline: none;
+}
+
+.clear-add-data-selection {
+  height: 5vh;
+  background: #b31011;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  width: 3.5vw;
+}
+
+.adddata-overall {
+  height: 100%;
+}
+
+.ad-layer-container {
+  height: calc(100% - 24vh);
+  overflow: auto;
+}
+
+.ad-alayer {
+  width: calc(100% - 50px);
+  height: 6vh;
+  background: #01015b;
+  border-radius: 4px;
+  margin: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  color: white;
+}
+
+.ad-alayer a {
+  color: white;
+  align-items: center;
+  display: flex;
+}
+
+.ad-zoomto {
+  margin-right: 2vw;
+  cursor: pointer;
+}
+
+.ad-remove {
+  cursor: pointer;
+}
+
+.ad-tools {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ad-alayer .fa-spinner {
+  display: none;
+}
+
+.ad-layer-name-container {
+  display: flex;
+}
+
+.ad-or-container {
+  display: flex;
+  justify-content: center;
+  padding: 5px 0 10px 0;
+}
+
+.ad-url-inp-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ad-url-input {
+  width: calc(75% + 30px);
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  border: 1px solid #C2C2C2;
+  box-shadow: 1px 1px 4px #ebebeb;
+  -moz-box-shadow: 1px 1px 4px #EBEBEB;
+  -webkit-box-shadow: 1px 1px 4px #ebebeb;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  padding: 7px;
+  outline: none;
+}
+
+.ad-url-input:active {
+  border: 1px solid #0C0;
+}
+
+.ad-url-add {
+  height: 5vh;
+  background: #01015b;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  width: 3.5vw;
+}
+
+.add-data-loading {
+  display: none;
+  margin-right: 0.5vw;
+}
+
+.ad-various-inputs {
+  height: 24vh;
+}
