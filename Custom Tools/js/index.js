@@ -70,8 +70,8 @@ $(document).ready(function () {
 
       map = new Map("map-div", {
         basemap: "topo",
-        center: [-122.45, 37.75],
-        zoom: 13
+        center: [78.9629, 20.5937],
+        zoom: 5
       });
 
       map.on("load", mapLoaded);
@@ -81,7 +81,7 @@ $(document).ready(function () {
       function showPageLoading() {
         $(".page-loader").show();
       }
-      
+
       function hidePageLoading() {
         $(".page-loader").hide();
       }
@@ -154,7 +154,7 @@ $(document).ready(function () {
           return;
         }
 
-        if(polygonEditGrafic) { // to prevent polygon symbol change reverse
+        if (polygonEditGrafic) { // to prevent polygon symbol change reverse
           alertify.error("Click on map. Do save or edit the graphic")
           return;
         }
@@ -182,7 +182,7 @@ $(document).ready(function () {
         polygonEditGrafic = evt.graphic;
       });
 
-      drawTextGraphicLayer.on("click", function(evt) {
+      drawTextGraphicLayer.on("click", function (evt) {
         if ($("#draw-text-container").css("display") == "none") {
           return;
         }
@@ -197,7 +197,7 @@ $(document).ready(function () {
         $("#text-hori-alignment").val(sym.horizontalAlignment);
         $("#text-vert-alignment").val(sym.verticalAlignment);
         $("#text-angle").val(parseInt(nullArray.indexOf(sym.angle) >= 0 ? 0 : sym.angle));
-        if(sym.haloColor) {
+        if (sym.haloColor) {
           var halocolor = sym.haloColor;
           $("#text-halo-width").val(sym.haloSize);
           $("#text-halo-colorSelector div").css("background-color", rgbToHex(halocolor.r, halocolor.g, halocolor.b));
@@ -205,11 +205,11 @@ $(document).ready(function () {
         var ft = sym.font;
         $("#text-family").val(ft.family);
         $("#text-font-size").val(ft.size);
-        $("#text-font-style").val(nullArray.indexOf(ft.style)>=0 ? "none" : ft.style);
+        $("#text-font-style").val(nullArray.indexOf(ft.style) >= 0 ? "none" : ft.style);
         $("#text-font-weight").val(ft.weight);
         $("#text-font-decoration").val(ft.decoration);
         redrawGraphicText()
-      })
+      });
 
       function rgbToHex(r, g, b) {
         return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
@@ -247,6 +247,7 @@ $(document).ready(function () {
         drawToolBar = new Draw(map);
         drawToolBar.on("draw-end", addGraphic);
         editToolBar = new Edit(map);
+        editToolBar.on("scale-stop", setTextScale)
       }
 
       loadSessionPtGraficData()
@@ -369,38 +370,38 @@ $(document).ready(function () {
 
       function loadSessionTextGraficData() {
         if (!sessionTextGraphicData)
-        return;
+          return;
 
-      var allptgrafDets = JSON.parse(sessionTextGraphicData);
-      Object.keys(allptgrafDets).forEach(function (atext) {
-        var agrfdets = allptgrafDets[atext];
-        var geom = agrfdets.geometry;
-        var sym = agrfdets.symbol;
-        var font = new Font({
-          "family" : sym.font.family,
-          "style" : sym.font.style,
-          "weight" : sym.font.weight,
-          "decoration" : sym.font.decoration
+        var allptgrafDets = JSON.parse(sessionTextGraphicData);
+        Object.keys(allptgrafDets).forEach(function (atext) {
+          var agrfdets = allptgrafDets[atext];
+          var geom = agrfdets.geometry;
+          var sym = agrfdets.symbol;
+          var font = new Font({
+            "family": sym.font.family,
+            "style": sym.font.style,
+            "weight": sym.font.weight,
+            "decoration": sym.font.decoration
+          });
+          font.setSize(parseInt(sym.font.size) + "px");
+          var grafsym = new TextSymbol(sym.text, font, new Color(sym.color));
+          grafsym.setAngle(parseInt(nullArray.indexOf(sym.angle) >= 0 ? 0 : sym.angle));
+          grafsym.setHorizontalAlignment(sym.verticalAlignment);
+          grafsym.setVerticalAlignment(sym.horizontalAlignment);
+
+          if (sym.haloSize) {
+            grafsym.setHaloColor(new Color(sym.haloColor));
+            grafsym.setHaloSize(parseInt(sym.haloSize));
+          }
+          drawTextGraphicLayer.add(new Graphic(new Point(geom), grafsym));
         });
-        font.setSize(parseInt(sym.font.size)+"px");
-        var grafsym = new TextSymbol(sym.text, font, new Color(sym.color));
-        grafsym.setAngle(parseInt(nullArray.indexOf(sym.angle) >= 0 ? 0 : sym.angle));
-        grafsym.setHorizontalAlignment(sym.verticalAlignment);
-        grafsym.setVerticalAlignment(sym.horizontalAlignment);
-        
-        if(sym.haloSize) {
-          grafsym.setHaloColor(new Color(sym.haloColor));
-          grafsym.setHaloSize(parseInt(sym.haloSize));
-        }
-        drawTextGraphicLayer.add(new Graphic(new Point(geom), grafsym));
-      });
       }
 
       function addGraphic(evt) {
         drawToolBar.deactivate();
         switch (evt.geometry.type) {
           case "point":
-            if(drawGraphicSymbol.type == "textsymbol") {
+            if (drawGraphicSymbol.type == "textsymbol") {
               drawTextGraphicLayer.add(new Graphic(evt.geometry, drawGraphicSymbol));
             } else {
               drawPointGraphicLayer.add(new Graphic(evt.geometry, drawGraphicSymbol));
@@ -421,6 +422,10 @@ $(document).ready(function () {
             break;
           default:
         }
+      }
+
+      function setTextScale(evt) {
+        console.log(evt)
       }
 
       $(".upside a").click(function () {
@@ -790,7 +795,7 @@ $(document).ready(function () {
         $('#polygon-colorSelector div').css('backgroundColor', '#' + hex);
         redrawGraphicPolygon();
       }
-      
+
       function polygonOutlineSelectorChange(hex) {
         $('#polygon-outline-colorSelector div').css('backgroundColor', '#' + hex);
         redrawGraphicPolygon();
@@ -1036,7 +1041,7 @@ $(document).ready(function () {
           $("#polygon-pic-fill").css("display", "flex");
           $("#polygon-color").hide();
           $("#polygon-opacity").hide();
-          if(!($("#draw-polygon-picture").val())) {
+          if (!($("#draw-polygon-picture").val())) {
             alertify.error("Please provide input image!.");
             return;
           }
@@ -1183,7 +1188,7 @@ $(document).ready(function () {
         $("#draw-point-picture").val("");
       });
 
-      $("#draw-text").click(function() {
+      $("#draw-text").click(function () {
         createTS();
         drawToolBar.activate("point");
       });
@@ -1200,7 +1205,7 @@ $(document).ready(function () {
           weight: fontweight,
           decoration: fontdecoration
         });
-        font.setSize(fontsize+"px");
+        font.setSize(fontsize + "px");
         var text = $("#text-text").val();
         var textcolor = getSymColor("text-colorSelector");
         var texthorialign = $("#text-hori-alignment").val();
@@ -1209,33 +1214,33 @@ $(document).ready(function () {
         var texthalowidth = $("#text-halo-width").val();
         var textangle = $("#text-angle").val();
         drawGraphicSymbol = new TextSymbol({
-          "type" : "esriTS",
-          "color" : textcolor,
-          "verticalAlignment" : textvertalign,
-          "horizontalAlignment" : texthorialign,
-          "text" : text
+          "type": "esriTS",
+          "color": textcolor,
+          "verticalAlignment": textvertalign,
+          "horizontalAlignment": texthorialign,
+          "text": text
         });
         drawGraphicSymbol.setFont(font);
         drawGraphicSymbol.setAngle(parseInt(textangle));
-        if($('#text-halo-apply').is(':checked')) {
+        if ($('#text-halo-apply').is(':checked')) {
           drawGraphicSymbol.setHaloSize(parseInt(texthalowidth));
           drawGraphicSymbol.setHaloColor(new Color(texthalocolor));
         }
       }
 
-      $("#save-draw-text").click(function() {
+      $("#save-draw-text").click(function () {
         saveGraficData(drawTextGraphicLayer, "text-graphic-data");
         $("#delete-draw-text").hide();
         textEditGrafic = undefined;
       });
 
-      $("#delete-draw-text").click(function() {
+      $("#delete-draw-text").click(function () {
         deleteGraphics(textEditGrafic, drawTextGraphicLayer);
         textEditGrafic = undefined;
       });
 
-      $("#text-halo-apply").change(function() {
-        if(this.checked) {
+      $("#text-halo-apply").change(function () {
+        if (this.checked) {
           $("#text-halo-color").css("display", "block");
           $("#text-halo-width-container").css("display", "block");
         } else {
