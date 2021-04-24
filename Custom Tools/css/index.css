@@ -701,3 +701,10 @@ ul.draw-point-tabs li.draw-current {
   border-radius: 0 0 5px 5px;
   cursor: pointer;
 }
+
+#map-loader img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 9;
+}

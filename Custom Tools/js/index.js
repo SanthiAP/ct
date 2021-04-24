@@ -34,7 +34,8 @@ $(document).ready(function () {
     "tool-bm": "BookMark",
     "tool-draw": "Draw",
     "tool-adddata": "Add Data",
-    "tool-basemap": "Change Basemap"
+    "tool-basemap": "Change Basemap",
+    "tool-digitize": "Digitize"
   }
   require(["esri/map",
     "esri/Color",
@@ -108,11 +109,11 @@ $(document).ready(function () {
       map.on("update-end", hidePageLoading);
 
       function showPageLoading() {
-        $(".page-loader").show();
+        $("#map-loader").show();
       }
       
       function hidePageLoading() {
-        $(".page-loader").hide();
+        $("#map-loader").hide();
       }
 
       bmFPLayer = new GraphicsLayer({
@@ -466,6 +467,9 @@ $(document).ready(function () {
       function openNav() {
         $("#map-container").css("width", "70%");
         $("#tools-content-container").css("width", "29%");
+        $(".map-single-widgets").css("left", "32.5%");
+        $(".single-widget-container").css("left", "calc(36% + 10px - 16.25%)");
+        $("#map-loader img").css("left", "33.5%")
       }
 
       $(".side-nav-header svg").click(function () {
@@ -475,7 +479,10 @@ $(document).ready(function () {
 
       function closeNav() {
         $("#map-container").css("width", "100%");
+        $(".map-single-widgets").css("left", "50%");
+        $(".single-widget-container").css("left", "calc(36% + 10px)");
         $("#tools-content-container").css("width", "0%");
+        $("#map-loader img").css("left", "50%")
       }
 
       $("#create-bm").click(function () {

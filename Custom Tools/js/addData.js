@@ -79,6 +79,7 @@ class AddData {
         default:
 
       }
+      $(".add-data-file-msg").text(" or drag and drop files here");
     }
 
     reader.onerror = function (error) {
@@ -264,6 +265,7 @@ class AddData {
         });
       }
       dis.addLayerOnMap(layer, layname);
+      $(".ad-url-input").val("");
     });
   }
 

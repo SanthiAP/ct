@@ -31,7 +31,7 @@
   <script src="node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
 
   <!-- Arcgis -->
-  <script src="https://js.arcgis.com/3.35/"></script>
+  <script src="https://js.arcgis.com/3.36/"></script>
   <link rel="stylesheet" href="https://js.arcgis.com/3.35/esri/css/esri.css">
 
   <!-- Custom CSS -->
@@ -48,9 +48,6 @@
 </head>
 
 <body>
-  <div class="page-loader">
-    <i class="fas fa-spinner fa-spin map-loader"></i>
-  </div>
   <div class="page-container">
     <div class="header-container">
       <h2>Custom Application</h2>
@@ -462,7 +459,8 @@
               <div id="draw-text-container" class="draw-mode-inner">
                 <div class="form-style">
                   <label for="text-text"><span>Text <span class="required">*</span></span>
-                    <input id="text-text" type="text" class="input-field" name="text-text" value="Text" placeholder="Please enter text..."/>
+                    <input id="text-text" type="text" class="input-field" name="text-text" value="Text"
+                      placeholder="Please enter text..." />
                   </label>
                   <label id="text-color" for="text-color"><span>Color <span class="required">*</span></span>
                     <div id="text-colorSelector">
@@ -488,7 +486,8 @@
                     </select>
                   </label>
                   <label for="text-angle"><span>Angle <span class="required">*</span></span>
-                    <input id="text-angle" type="number" class="input-field" name="text-angle" value="0" min="-360" max="360" placeholder="Please enter text Angle.."/>
+                    <input id="text-angle" type="number" class="input-field" name="text-angle" value="0" min="-360"
+                      max="360" placeholder="Please enter text Angle.." />
                   </label>
                   <label for="text-halo-apply">
                     <input type="checkbox" id="text-halo-apply" name="text-halo-apply">
@@ -499,15 +498,20 @@
                       <div style="background-color: #0000ff"></div>
                     </div>
                   </label>
-                  <label id="text-halo-width-container" for="text-halo-width"><span>halo width <span class="required">*</span></span>
-                    <input id="text-halo-width" type="number" class="input-field" name="text-halo-width" value="1" min="1" max="10" placeholder="Please enter text halo width.."/>
+                  <label id="text-halo-width-container" for="text-halo-width"><span>halo width <span
+                        class="required">*</span></span>
+                    <input id="text-halo-width" type="number" class="input-field" name="text-halo-width" value="1"
+                      min="1" max="10" placeholder="Please enter text halo width.." />
                   </label>
-                  <label for="font">Font Style</label><hr>
+                  <label for="font">Font Style</label>
+                  <hr>
                   <label for="text-family"><span>Family <span class="required">*</span></span>
-                    <input id="text-family" type="text" class="input-field" name="text-family" value="Serif" placeholder="Please enter text Family.."/>
+                    <input id="text-family" type="text" class="input-field" name="text-family" value="Serif"
+                      placeholder="Please enter text Family.." />
                   </label>
                   <label for="text-font-size"><span>Size <span class="required">*</span></span>
-                    <input id="text-font-size" type="number" class="input-field" name="text-font-size" value="12" min="10" max="30" placeholder="Please enter text size.."/>
+                    <input id="text-font-size" type="number" class="input-field" name="text-font-size" value="12"
+                      min="10" max="30" placeholder="Please enter text size.." />
                   </label>
                   <label for="text-font-style"><span>Style <span class="required">*</span></span>
                     <select name="text-font-style" id="text-font-style" class="select-field">
@@ -554,11 +558,18 @@
           <div id="tool-basemap-container" class="tools-ind-container">
 
           </div>
+          <div id="tool-digitize-container" class="tools-ind-container">
+
+          </div>
         </div>
       </div>
 
       <div id="map-container">
-        <div id="map-div"></div>
+        <div id="map-div">
+          <div id="map-loader">
+            <img src="images/map_loading.gif" alt="Loading...">
+          </div>
+        </div>
         <div class="map-single-widgets">
           <i class="fas fa-chevron-down"></i>
         </div>
@@ -638,7 +649,9 @@
                 <li>
                   <div class="placeholder">
                     <div class="upside">
-                      <a href="#" class="button"><i class="fa fa-cloud"></i></a>
+                      <a id="tool-digitize" href="#" class="button" title="Digitize Layers">
+                        <i class="fas fa-pen-square"></i>
+                      </a>
                     </div>
                   </div>
                 </li>
@@ -679,7 +692,9 @@
             </div>
           </label>
         </section>
-
+        <!-- <div class="page-loader">
+          <i class="fas fa-spinner fa-spin map-loader"></i>
+        </div> -->
       </div>
     </div>
   </div>
