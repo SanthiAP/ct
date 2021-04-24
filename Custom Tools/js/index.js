@@ -33,7 +33,8 @@ $(document).ready(function () {
   var titleMapping = {
     "tool-bm": "BookMark",
     "tool-draw": "Draw",
-    "tool-adddata": "Add Data"
+    "tool-adddata": "Add Data",
+    "tool-basemap": "Change Basemap"
   }
   require(["esri/map",
     "esri/Color",
@@ -57,7 +58,12 @@ $(document).ready(function () {
     "esri/symbols/PictureFillSymbol",
 
     "esri/toolbars/draw",
-    "esri/toolbars/edit"
+    "esri/toolbars/edit",
+
+    "esri/dijit/Search",
+    "esri/dijit/HomeButton",
+    "esri/dijit/LocateButton",
+    "esri/dijit/BasemapGallery"
   ],
     function (Map,
       Color,
@@ -65,14 +71,37 @@ $(document).ready(function () {
       Extent, Polygon, Point, Multipoint, Polyline, geometryEngine,
       GraphicsLayer,
       SimpleFillSymbol, TextSymbol, Font, SimpleLineSymbol, PictureMarkerSymbol, SimpleMarkerSymbol, PictureFillSymbol,
-      Draw, Edit
+      Draw, Edit,
+      Search, HomeButton, LocateButton, BasemapGallery
     ) {
 
       map = new Map("map-div", {
         basemap: "topo",
-        center: [-122.45, 37.75],
-        zoom: 13
+        center: [78.9629, 20.5937],
+        zoom: 5
       });
+
+      var searchWidget = new Search({
+        map: map
+      },"search-widget");
+
+      var homeButton = new HomeButton({
+        theme: "HomeButton",
+        map: map,
+        extent: null,
+        visible: true
+      }, "home-widget");
+      homeButton.startup();
+
+      var locateButton = new LocateButton({
+        map: map
+      }, "locate-widget");
+
+      var basemapGallery = new BasemapGallery({
+        showArcGISBasemaps: true,
+        map: map
+      }, "tool-basemap-container");
+      basemapGallery.startup();
 
       map.on("load", mapLoaded);
       map.on("update-start", showPageLoading);
@@ -1259,5 +1288,19 @@ $(document).ready(function () {
       $("#text-font-decoration").change(redrawGraphicText);
 
       var adddataconst = new AddData("tool-adddata-container", map);
+
+      $(".map-single-widgets").click(function() {
+        var containerDisplay = $(".single-widget-container").css("display");
+        $(".map-single-widgets").empty();
+        if(containerDisplay == "none") {
+          $(".single-widget-container").css("display", "flex");
+          $(".map-single-widgets").append('<i class="fas fa-chevron-up"></i>')
+          $(".map-single-widgets").css("top", "calc(11vh + 44px)");
+        } else {
+          $(".single-widget-container").hide();
+          $(".map-single-widgets").append('<i class="fas fa-chevron-down"></i>')
+          $(".map-single-widgets").css("top", "11vh");
+        }
+      });
     });
 });

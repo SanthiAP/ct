@@ -551,11 +551,22 @@
           <div id="tool-adddata-container" class="tools-ind-container">
 
           </div>
+          <div id="tool-basemap-container" class="tools-ind-container">
+
+          </div>
         </div>
       </div>
 
       <div id="map-container">
         <div id="map-div"></div>
+        <div class="map-single-widgets">
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="single-widget-container">
+          <div id="search-widget"></div>
+          <div id="home-widget"></div>
+          <div id="locate-widget"></div>
+        </div>
         <section class="menu menu--circle">
           <input type="checkbox" id="menu__active" />
           <label for="menu__active" class="menu__active">
@@ -572,14 +583,18 @@
                 <li>
                   <div class="placeholder">
                     <div class="upside">
-                      <a id="tool-bm" href="#" class="button"><i class="fas fa-bookmark"></i></a>
+                      <a id="tool-bm" href="#" class="button" title="Bookmark">
+                        <i class="fas fa-bookmark"></i>
+                      </a>
                     </div>
                   </div>
                 </li>
                 <li>
                   <div class="placeholder">
                     <div class="upside">
-                      <a id="tool-draw" href="#" class="button"><i class="fas fa-pencil-alt"></i></a>
+                      <a id="tool-draw" href="#" class="button" title="Draw Annotation">
+                        <i class="fas fa-pencil-alt"></i>
+                      </a>
                     </div>
                   </div>
                 </li>
@@ -593,7 +608,9 @@
                 <li>
                   <div class="placeholder">
                     <div class="upside">
-                      <a href="#" class="button"><i class="fas fa-plus-square"></i></a>
+                      <a href="#" class="button" title="Add Data">
+                        <i class="fas fa-plus-square"></i>
+                      </a>
                     </div>
                   </div>
                 </li>
@@ -628,14 +645,18 @@
                 <li>
                   <div class="placeholder">
                     <div class="upside">
-                      <a href="#" class="button"><i class="fa fa-wifi"></i></a>
+                      <a href="#" id="tool-basemap" class="button" title="Change Basemap">
+                        <i class="fas fa-map"></i>
+                      </a>
                     </div>
                   </div>
                 </li>
                 <li>
                   <div class="placeholder">
                     <div class="upside">
-                      <a id="tool-adddata" href="#" class="button"><i class="fas fa-plus-square"></i></a>
+                      <a id="tool-adddata" href="#" class="button" title="Add Data">
+                        <i class="fas fa-plus-square"></i>
+                      </a>
                     </div>
                   </div>
                 </li>

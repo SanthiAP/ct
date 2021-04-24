@@ -675,3 +675,29 @@ ul.draw-point-tabs li.draw-current {
   color: black;
   z-index: 99;
 }
+
+.single-widget-container {
+  position: absolute;
+  top: 11vh;
+  left: calc(36% + 10px);
+  display: none;
+  width: 28%;
+  justify-content: space-around;
+  padding: 5px;
+  background: white;
+  border-radius: 7px;
+}
+
+.map-single-widgets {
+  position: absolute;
+  top: 11vh;
+  left: 50%;
+  width: 3vw;
+  padding: 4px;
+  background: #01015b;
+  color: white;
+  display: flex;
+  justify-content: center;
+  border-radius: 0 0 5px 5px;
+  cursor: pointer;
+}
