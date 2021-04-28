@@ -97,9 +97,6 @@ html, body, .page-container {
 .bm-content-container {
   width: 100%;
   height: calc(100% - 10vh);
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
   padding-top: 10px;
   overflow: auto;
 }
@@ -128,7 +125,7 @@ html, body, .page-container {
 }
 
 .bm-single {
-  width: 100%;
+  width: 87%;
   height: 6vh;
   background: #01015b;
   border-radius: 4px;

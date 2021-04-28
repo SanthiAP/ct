@@ -40,6 +40,7 @@ $(document).ready(function () {
   require(["esri/map",
     "esri/Color",
     "esri/graphic",
+    "esri/graphicsUtils",
 
     "esri/geometry/Extent",
     "esri/geometry/Polygon",
@@ -68,7 +69,7 @@ $(document).ready(function () {
   ],
     function (Map,
       Color,
-      Graphic,
+      Graphic, graphicsUtils,
       Extent, Polygon, Point, Multipoint, Polyline, geometryEngine,
       GraphicsLayer,
       SimpleFillSymbol, TextSymbol, Font, SimpleLineSymbol, PictureMarkerSymbol, SimpleMarkerSymbol, PictureFillSymbol,
@@ -629,13 +630,28 @@ $(document).ready(function () {
 
       function setBMExtent() {
         var allFPExts = [];
-        Object.keys(bookmarks).forEach(function (abm) {
-          allFPExts.push(new Extent(bookmarks[abm]));
+        if(bmFPLayer.graphics.length == 1) {
+          map.setExtent(bmFPLayer.graphics[0].geometry);
+          return;
+        }
+        bmFPLayer.graphics.forEach(function (agr) {
+          allFPExts.push(agr.geometry);
         })
         var unionExt = geometryEngine.union(allFPExts);
         var polyGeom = new Polygon(unionExt);
         map.setExtent(polyGeom.getExtent());
       }
+
+      /* function setBMExtent() {
+        var allFPExts = [];
+        Object.keys(bookmarks).forEach(function (abm) {
+          // allFPExts.push(bookmarks[abm]);
+          allFPExts.push(new Extent(bookmarks[abm]));
+        })
+        var unionExt = geometryEngine.union(allFPExts);
+        var polyGeom = new Polygon(unionExt);
+        map.setExtent(polyGeom.getExtent());
+      } */
 
       function removeAllBMFootprint() {
         bmFPLayer.clear();

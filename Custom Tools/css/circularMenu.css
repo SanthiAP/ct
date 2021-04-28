@@ -41,7 +41,7 @@
 .menu--circle {
   position: absolute;
   width: 10vw;
-  height: 18vh;
+  height: 23vh;
   background-color: transparent;
   overflow: hidden;
   left: 0;
@@ -316,4 +316,11 @@ input[name="arrow--up"] {
 
 .active-tool {
   color: #9fc126 !important;
+}
+
+.circular-bottom-arrow {
+  top: 7em;
+  transition: 0.5s;
+  left: 0.5em;
+  transform: rotate(304deg);
 }
