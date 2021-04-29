@@ -102,7 +102,7 @@ $(document).ready(function () {
       var basemapGallery = new BasemapGallery({
         showArcGISBasemaps: true,
         map: map
-      }, "tool-basemap-container");
+      }, "basemap-gallery");
       basemapGallery.startup();
 
       map.on("load", mapLoaded);
@@ -1311,6 +1311,7 @@ $(document).ready(function () {
       $("#text-font-decoration").change(redrawGraphicText);
 
       var adddataconst = new AddData("tool-adddata-container", map);
+      var digitizecons = new DigitizeFeature("tool-digitize-container", map);
 
       $(".map-single-widgets").click(function() {
         var containerDisplay = $(".single-widget-container").css("display");

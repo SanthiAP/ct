@@ -705,3 +705,8 @@ ul.draw-point-tabs li.draw-current {
   top: 50%;
   z-index: 9;
 }
+
+#basemap-gallery {
+  width: 100%;
+  height: 100%;
+}
