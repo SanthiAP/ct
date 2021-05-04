@@ -105,6 +105,10 @@ $(document).ready(function () {
       }, "basemap-gallery");
       basemapGallery.startup();
 
+      map.on("click", function(evt) {
+        if(evt.graphic)
+          $(".esriPopup").show();
+      });
       map.on("load", mapLoaded);
       map.on("update-start", showPageLoading);
       map.on("update-end", hidePageLoading);
@@ -1141,7 +1145,7 @@ $(document).ready(function () {
 
       $("#draw-polygon-circle").click(function () {
         createSFS();
-        drawToolBar.activate("Circle")
+        drawToolBar.activate("circle")
       });
 
       $("#draw-polygon-ellipse").click(function () {
@@ -1311,7 +1315,7 @@ $(document).ready(function () {
       $("#text-font-decoration").change(redrawGraphicText);
 
       var adddataconst = new AddData("tool-adddata-container", map);
-      var digitizecons = new DigitizeFeature("tool-digitize-container", map);
+      var digitizecons = new DigitizeFeature("tool-digitize-container", map, "digitize-attr");
 
       $(".map-single-widgets").click(function() {
         var containerDisplay = $(".single-widget-container").css("display");

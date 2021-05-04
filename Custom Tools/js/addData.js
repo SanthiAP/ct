@@ -172,6 +172,8 @@ class AddData {
       
       if (layer) {
         $(this).parent().parent().find('.fa-spinner').hide();
+        if(layer.fullExtent) 
+          dis.map.setExtent(layer.fullExtent);
         layer.on("load", function() {
           if(layer.fullExtent)
             dis.map.setExtent(layer.fullExtent);
