@@ -31,7 +31,7 @@
   <script src="node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
 
   <!-- Arcgis -->
-  <script src="https://js.arcgis.com/3.35/"></script>
+  <script src="https://js.arcgis.com/3.36/"></script>
   <link rel="stylesheet" href="https://js.arcgis.com/3.35/esri/css/esri.css">
 
   <!-- Custom CSS -->
@@ -39,18 +39,17 @@
   <link rel="stylesheet" href="css/formStyle.css">
   <link rel="stylesheet" href="css/circularMenu.css">
   <link rel="stylesheet" href="css/addData.css">
+  <link rel="stylesheet" href="css/digitize.css">
 
   <!-- Custom JS -->
   <script src="data/lineSVGs.json"></script>
   <script src="data/polygonSymbol.json"></script>
   <script src="js/addData.js"></script>
+  <script src="js/digitize.js"></script>
   <script src="js/index.js"></script>
 </head>
 
 <body>
-  <div class="page-loader">
-    <i class="fas fa-spinner fa-spin map-loader"></i>
-  </div>
   <div class="page-container">
     <div class="header-container">
       <h2>Custom Application</h2>
@@ -462,7 +461,8 @@
               <div id="draw-text-container" class="draw-mode-inner">
                 <div class="form-style">
                   <label for="text-text"><span>Text <span class="required">*</span></span>
-                    <input id="text-text" type="text" class="input-field" name="text-text" value="Text" placeholder="Please enter text..."/>
+                    <input id="text-text" type="text" class="input-field" name="text-text" value="Text"
+                      placeholder="Please enter text..." />
                   </label>
                   <label id="text-color" for="text-color"><span>Color <span class="required">*</span></span>
                     <div id="text-colorSelector">
@@ -488,7 +488,8 @@
                     </select>
                   </label>
                   <label for="text-angle"><span>Angle <span class="required">*</span></span>
-                    <input id="text-angle" type="number" class="input-field" name="text-angle" value="0" min="-360" max="360" placeholder="Please enter text Angle.."/>
+                    <input id="text-angle" type="number" class="input-field" name="text-angle" value="0" min="-360"
+                      max="360" placeholder="Please enter text Angle.." />
                   </label>
                   <label for="text-halo-apply">
                     <input type="checkbox" id="text-halo-apply" name="text-halo-apply">
@@ -499,15 +500,20 @@
                       <div style="background-color: #0000ff"></div>
                     </div>
                   </label>
-                  <label id="text-halo-width-container" for="text-halo-width"><span>halo width <span class="required">*</span></span>
-                    <input id="text-halo-width" type="number" class="input-field" name="text-halo-width" value="1" min="1" max="10" placeholder="Please enter text halo width.."/>
+                  <label id="text-halo-width-container" for="text-halo-width"><span>halo width <span
+                        class="required">*</span></span>
+                    <input id="text-halo-width" type="number" class="input-field" name="text-halo-width" value="1"
+                      min="1" max="10" placeholder="Please enter text halo width.." />
                   </label>
-                  <label for="font">Font Style</label><hr>
+                  <label for="font">Font Style</label>
+                  <hr>
                   <label for="text-family"><span>Family <span class="required">*</span></span>
-                    <input id="text-family" type="text" class="input-field" name="text-family" value="Serif" placeholder="Please enter text Family.."/>
+                    <input id="text-family" type="text" class="input-field" name="text-family" value="Serif"
+                      placeholder="Please enter text Family.." />
                   </label>
                   <label for="text-font-size"><span>Size <span class="required">*</span></span>
-                    <input id="text-font-size" type="number" class="input-field" name="text-font-size" value="12" min="10" max="30" placeholder="Please enter text size.."/>
+                    <input id="text-font-size" type="number" class="input-field" name="text-font-size" value="12"
+                      min="10" max="30" placeholder="Please enter text size.." />
                   </label>
                   <label for="text-font-style"><span>Style <span class="required">*</span></span>
                     <select name="text-font-style" id="text-font-style" class="select-field">
@@ -551,115 +557,69 @@
           <div id="tool-adddata-container" class="tools-ind-container">
 
           </div>
+          <div id="tool-basemap-container" class="tools-ind-container">
+            <div id="basemap-gallery"></div>
+          </div>
+          <div id="tool-digitize-container" class="tools-ind-container">
+
+          </div>
         </div>
       </div>
 
       <div id="map-container">
-        <div id="map-div"></div>
-        <section class="menu menu--circle">
-          <input type="checkbox" id="menu__active" />
-          <label for="menu__active" class="menu__active">
-            <div class="menu__toggle">
-              <div class="icon">
-                <div class="hamburger"></div>
-              </div>
-            </div>
-            <input type="radio" name="arrow--up" id="degree--up-0" />
-            <input type="radio" name="arrow--up" id="degree--up-1" />
-            <input type="radio" name="arrow--up" id="degree--up-2" />
-            <div class="menu__listings">
-              <ul class="circle">
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a id="tool-bm" href="#" class="button"><i class="fas fa-bookmark"></i></a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a id="tool-draw" href="#" class="button"><i class="fas fa-pencil-alt"></i></a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#">&nbsp</a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#" class="button"><i class="fas fa-plus-square"></i></a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#" class="button"><i class="fa fa-trash"></i></a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#" class="button"><i class="fa fa-battery-4"></i></a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#" class="button"><i class="fa fa-calendar"></i></a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#" class="button"><i class="fa fa-cloud"></i></a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#" class="button"><i class="fa fa-wifi"></i></a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a id="tool-adddata" href="#" class="button"><i class="fas fa-plus-square"></i></a>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="menu__arrow menu__arrow--top">
-              <ul>
-                <li>
-                  <label for="degree--up-0">
-                    <div class="arrow"></div>
-                  </label>
-                  <label for="degree--up-1">
-                    <div class="arrow"></div>
-                  </label>
-                  <label for="degree--up-2">
-                    <div class="arrow"></div>
-                  </label>
-                </li>
-              </ul>
-            </div>
-          </label>
-        </section>
-
+        <div id="map-div">
+          <div id="map-loader">
+            <img src="images/map_loading.gif" alt="Loading...">
+          </div>
+        </div>
+        <div class="map-single-widgets">
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="single-widget-container">
+          <div id="search-widget"></div>
+          <div id="home-widget"></div>
+          <div id="locate-widget"></div>
+        </div>
+        <div id="downicon1">
+          <svg class="arrows rotate" id="rotate" viewBox="0 0 150 200">
+            <path class="a1" d="M0 0 L30 32 L60 0"></path>
+            <path class="a2" d="M0 20 L30 52 L60 20"></path>
+            <path class="a3" d="M0 40 L30 72 L60 40"></path>
+          </svg>
+          <div id="viewmenu">Click here to view Menu</div>
+        </div>
+        
+        <div id="downicon">
+          <svg class="arrows-hide" viewBox="0 0 150 200">
+            <path class="a1" d="M0 0 L30 32 L60 0"></path>
+            <path class="a2" d="M0 20 L30 52 L60 20"></path>
+            <path class="a3" d="M0 40 L30 72 L60 40"></path>
+          </svg>
+        </div>
       </div>
+      <div id="covered">
+        <div class="blurred-box">
+          <div class="grid-container">
+            <div class="box 1">
+              <div id="tool-bm" class="item"><i class="fas fa-bookmark"></i></div>
+            </div>
+            <div class="box 2">
+              <div id="tool-draw" class="item"><i class="fas fa-pencil-alt"></i></div>
+            </div>
+            <div class="box 3">
+              <div id="tool-digitize" class="item"><i class="fas fa-pen-square"></i></div>
+            </div>
+            <div class="box 4">
+              <div id="tool-adddata" class="item"><i class="fas fa-plus-square"></i></div>
+            </div>
+            <div class="box 5">
+              <div id="tool-basemap" class="item"><i class="fas fa-map"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="digitize-attr" class="digitize-attribute-container">
     </div>
   </div>
 </body>

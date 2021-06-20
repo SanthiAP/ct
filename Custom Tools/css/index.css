@@ -4,6 +4,7 @@ html, body, .page-container {
   padding: 0;
   margin: 0;
   font-family: Calibri;
+  overflow: hidden;
 }
 
 .page-container {
@@ -97,9 +98,6 @@ html, body, .page-container {
 .bm-content-container {
   width: 100%;
   height: calc(100% - 10vh);
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
   padding-top: 10px;
   overflow: auto;
 }
@@ -128,7 +126,7 @@ html, body, .page-container {
 }
 
 .bm-single {
-  width: 100%;
+  width: 87%;
   height: 6vh;
   background: #01015b;
   border-radius: 4px;
@@ -674,4 +672,58 @@ ul.draw-point-tabs li.draw-current {
   font-size: xxx-large;
   color: black;
   z-index: 99;
+}
+
+.single-widget-container {
+  position: absolute;
+  top: 11vh;
+  left: calc(36% + 10px);
+  display: none;
+  width: 28%;
+  justify-content: space-around;
+  padding: 5px;
+  background: white;
+  border-radius: 7px;
+}
+
+.map-single-widgets {
+  position: absolute;
+  top: 11vh;
+  left: 50%;
+  width: 3vw;
+  padding: 4px;
+  background: #01015b;
+  color: white;
+  display: flex;
+  justify-content: center;
+  border-radius: 0 0 5px 5px;
+  cursor: pointer;
+}
+
+#map-loader img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 9;
+}
+
+#basemap-gallery {
+  width: 100%;
+  height: 100%;
+}
+
+.digitize-attribute-container {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+  height: 300px;
+  left: 20px;
+  bottom: 20px;
+  background: white;
+  border-radius: 4px;
+}
+
+#digitize-attr {
+  display: none;
 }

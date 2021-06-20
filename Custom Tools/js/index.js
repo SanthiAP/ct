@@ -33,11 +33,14 @@ $(document).ready(function () {
   var titleMapping = {
     "tool-bm": "BookMark",
     "tool-draw": "Draw",
-    "tool-adddata": "Add Data"
+    "tool-adddata": "Add Data",
+    "tool-basemap": "Change Basemap",
+    "tool-digitize": "Digitize"
   }
   require(["esri/map",
     "esri/Color",
     "esri/graphic",
+    "esri/graphicsUtils",
 
     "esri/geometry/Extent",
     "esri/geometry/Polygon",
@@ -57,15 +60,21 @@ $(document).ready(function () {
     "esri/symbols/PictureFillSymbol",
 
     "esri/toolbars/draw",
-    "esri/toolbars/edit"
+    "esri/toolbars/edit",
+
+    "esri/dijit/Search",
+    "esri/dijit/HomeButton",
+    "esri/dijit/LocateButton",
+    "esri/dijit/BasemapGallery"
   ],
     function (Map,
       Color,
-      Graphic,
+      Graphic, graphicsUtils,
       Extent, Polygon, Point, Multipoint, Polyline, geometryEngine,
       GraphicsLayer,
       SimpleFillSymbol, TextSymbol, Font, SimpleLineSymbol, PictureMarkerSymbol, SimpleMarkerSymbol, PictureFillSymbol,
-      Draw, Edit
+      Draw, Edit,
+      Search, HomeButton, LocateButton, BasemapGallery
     ) {
 
       map = new Map("map-div", {
@@ -74,16 +83,42 @@ $(document).ready(function () {
         zoom: 5
       });
 
+      var searchWidget = new Search({
+        map: map
+      }, "search-widget");
+
+      var homeButton = new HomeButton({
+        theme: "HomeButton",
+        map: map,
+        extent: null,
+        visible: true
+      }, "home-widget");
+      homeButton.startup();
+
+      var locateButton = new LocateButton({
+        map: map
+      }, "locate-widget");
+
+      var basemapGallery = new BasemapGallery({
+        showArcGISBasemaps: true,
+        map: map
+      }, "basemap-gallery");
+      basemapGallery.startup();
+
+      map.on("click", function (evt) {
+        if (evt.graphic)
+          $(".esriPopup").show();
+      });
       map.on("load", mapLoaded);
       map.on("update-start", showPageLoading);
       map.on("update-end", hidePageLoading);
 
       function showPageLoading() {
-        $(".page-loader").show();
+        $("#map-loader").show();
       }
 
       function hidePageLoading() {
-        $(".page-loader").hide();
+        $("#map-loader").hide();
       }
 
       bmFPLayer = new GraphicsLayer({
@@ -118,7 +153,9 @@ $(document).ready(function () {
         new Color([232, 104, 80, 0.15])
       );
       drawPointGraphicLayer.on("click", function (evt) {
-        if ($("#draw-point-container").css("display") == "none") {
+        if ($("#draw-point-container").css("display") == "none" &&
+          $("#tools-content-container").css("width") == "0px") {
+          alertify.warning("Open Draw tool and click point option to edit");
           return;
         }
         editToolBar.activate(Edit.MOVE, evt.graphic);
@@ -199,6 +236,7 @@ $(document).ready(function () {
         $("#text-angle").val(parseInt(nullArray.indexOf(sym.angle) >= 0 ? 0 : sym.angle));
         if (sym.haloColor) {
           var halocolor = sym.haloColor;
+          $('#text-halo-apply').prop('checked', true).trigger("change");
           $("#text-halo-width").val(sym.haloSize);
           $("#text-halo-colorSelector div").css("background-color", rgbToHex(halocolor.r, halocolor.g, halocolor.b));
         }
@@ -209,7 +247,7 @@ $(document).ready(function () {
         $("#text-font-weight").val(ft.weight);
         $("#text-font-decoration").val(ft.decoration);
         redrawGraphicText()
-      });
+      })
 
       function rgbToHex(r, g, b) {
         return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
@@ -247,7 +285,6 @@ $(document).ready(function () {
         drawToolBar = new Draw(map);
         drawToolBar.on("draw-end", addGraphic);
         editToolBar = new Edit(map);
-        editToolBar.on("scale-stop", setTextScale)
       }
 
       loadSessionPtGraficData()
@@ -424,13 +461,9 @@ $(document).ready(function () {
         }
       }
 
-      function setTextScale(evt) {
-        console.log(evt)
-      }
-
-      $(".upside a").click(function () {
+      $(".box .item").click(function () {
         var clickedElem = $(this);
-        $(".upside a").removeClass("active-tool");
+        $(".box .item").removeClass("active-tool");
         clickedElem.addClass("active-tool");
         openNav();
         $(".all-tool-content .tools-ind-container").css("display", "none");
@@ -442,16 +475,28 @@ $(document).ready(function () {
       function openNav() {
         $("#map-container").css("width", "70%");
         $("#tools-content-container").css("width", "29%");
+        $(".map-single-widgets").css("left", "32.5%");
+        $(".single-widget-container").css("left", "calc(36% + 10px - 16.25%)");
+        $("#map-loader img").css("left", "33.5%")
+        $("#downicon").css("left", "29%");
+        $("#downicon1").css("left", "25%");
+        $("#covered").css("left", "25%");
       }
-
+      
       $(".side-nav-header svg").click(function () {
-        $(".upside a").removeClass("active-tool");
+        $(".box .item").removeClass("active-tool");
         closeNav();
       })
-
+      
       function closeNav() {
         $("#map-container").css("width", "100%");
+        $(".map-single-widgets").css("left", "50%");
+        $(".single-widget-container").css("left", "calc(36% + 10px)");
         $("#tools-content-container").css("width", "0%");
+        $("#map-loader img").css("left", "50%")
+        $("#downicon1").css("left", "calc(50% - 81px)");
+        $("#downicon").css("left", "48%");
+        $("#covered").css("left", "44%");
       }
 
       $("#create-bm").click(function () {
@@ -598,13 +643,28 @@ $(document).ready(function () {
 
       function setBMExtent() {
         var allFPExts = [];
-        Object.keys(bookmarks).forEach(function (abm) {
-          allFPExts.push(new Extent(bookmarks[abm]));
+        if (bmFPLayer.graphics.length == 1) {
+          map.setExtent(bmFPLayer.graphics[0].geometry);
+          return;
+        }
+        bmFPLayer.graphics.forEach(function (agr) {
+          allFPExts.push(agr.geometry);
         })
         var unionExt = geometryEngine.union(allFPExts);
         var polyGeom = new Polygon(unionExt);
         map.setExtent(polyGeom.getExtent());
       }
+
+      /* function setBMExtent() {
+        var allFPExts = [];
+        Object.keys(bookmarks).forEach(function (abm) {
+          // allFPExts.push(bookmarks[abm]);
+          allFPExts.push(new Extent(bookmarks[abm]));
+        })
+        var unionExt = geometryEngine.union(allFPExts);
+        var polyGeom = new Polygon(unionExt);
+        map.setExtent(polyGeom.getExtent());
+      } */
 
       function removeAllBMFootprint() {
         bmFPLayer.clear();
@@ -828,6 +888,7 @@ $(document).ready(function () {
         if (!textEditGrafic) {
           return;
         }
+        $("#text-halo-colorSelector").trigger("change")
         drawTextGraphicLayer.remove(textEditGrafic);
         createTS();
         var graf = new Graphic(new Point(textEditGrafic.geometry), drawGraphicSymbol);
@@ -1089,12 +1150,12 @@ $(document).ready(function () {
 
       $("#draw-polygon-rectangle").click(function () {
         createSFS();
-        drawToolBar.activate("extent")
+        drawToolBar.activate("rectangle")
       });
 
       $("#draw-polygon-circle").click(function () {
         createSFS();
-        drawToolBar.activate("Circle")
+        drawToolBar.activate("circle")
       });
 
       $("#draw-polygon-ellipse").click(function () {
@@ -1243,9 +1304,11 @@ $(document).ready(function () {
         if (this.checked) {
           $("#text-halo-color").css("display", "block");
           $("#text-halo-width-container").css("display", "block");
+          redrawGraphicText();
         } else {
           $("#text-halo-color").css("display", "none");
           $("#text-halo-width-container").css("display", "none");
+          redrawGraphicText();
         }
       });
 
@@ -1264,5 +1327,33 @@ $(document).ready(function () {
       $("#text-font-decoration").change(redrawGraphicText);
 
       var adddataconst = new AddData("tool-adddata-container", map);
+      var digitizecons = new DigitizeFeature("tool-digitize-container", map, "digitize-attr");
+
+      $(".map-single-widgets").click(function () {
+        var containerDisplay = $(".single-widget-container").css("display");
+        $(".map-single-widgets").empty();
+        if (containerDisplay == "none") {
+          $(".single-widget-container").css("display", "flex");
+          $(".map-single-widgets").append('<i class="fas fa-chevron-up"></i>')
+          $(".map-single-widgets").css("top", "calc(11vh + 44px)");
+        } else {
+          $(".single-widget-container").hide();
+          $(".map-single-widgets").append('<i class="fas fa-chevron-down"></i>')
+          $(".map-single-widgets").css("top", "11vh");
+        }
+      });
+
+      $('#downicon1').click(function () {
+        $('#covered').slideDown();
+        $('#downicon1').hide();
+        $('#downicon').show();
+      });
+
+      $('#downicon').click();
+      $('#downicon').click(function () {
+        $('#covered').slideUp();
+        $('#downicon1').show();
+        $('#downicon').hide();
+      });
     });
 });

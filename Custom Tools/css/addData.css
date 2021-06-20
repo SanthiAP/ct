@@ -92,6 +92,8 @@
   color: white;
   align-items: center;
   display: flex;
+  text-decoration: none;
+  cursor: default;
 }
 
 .ad-zoomto {

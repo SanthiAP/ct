@@ -124,6 +124,8 @@ class AddData {
           id: layname,
           name: layname
         });
+        var template = new InfoTemplate(layname, "${*}");
+        csvlayer.setInfoTemplate(template);
         var orangeRed = new Color(dis.getRandomColor()); // hex is #ff4500
         var marker = new SimpleMarkerSymbol("solid", 15, null, orangeRed);
         var renderer = new SimpleRenderer(marker);
@@ -153,6 +155,7 @@ class AddData {
     dis.unbindLayerTools();
     dis.bindLayerTools();
     $(".ad-layer-name-container input[name='" + lname + "'").parent().parent().children('.ad-tools').children('.ad-zoomto').trigger("click");
+    $(".add-data-file-msg").text(" or drag and drop files here");
   }
 
   unbindLayerTools() {
@@ -163,14 +166,24 @@ class AddData {
 
   bindLayerTools() {
     $(".ad-zoomto").click(function () {
-      $(".ad-alayer .fa-spinner").show();
+      $(this).parent().parent().find('.fa-spinner').show();
       var layerid = $(this).parent().parent().find('a').text();
       var layer = dis.map.getLayer(layerid);
-      if (layer && layer.fullExtent) {
-        $(".ad-alayer .fa-spinner").hide();
-        dis.map.setExtent(layer.fullExtent);
+      
+      if (layer) {
+        $(this).parent().parent().find('.fa-spinner').hide();
+        if(layer.fullExtent) 
+          dis.map.setExtent(layer.fullExtent);
+        layer.on("load", function() {
+          if(layer.fullExtent)
+            dis.map.setExtent(layer.fullExtent);
+          else {
+            alertify.error("Extent not found");
+            return;
+          }
+        })
       } else {
-        $(".ad-alayer .fa-spinner").hide();
+        $(this).parent().parent().find('.fa-spinner').hide();
       }
     });
     $(".ad-remove").click(function () {
@@ -248,22 +261,26 @@ class AddData {
 
   loadServices(layname) {
     require([
+      "esri/InfoTemplate",
       "esri/layers/FeatureLayer",
       "esri/layers/ArcGISDynamicMapServiceLayer"
-    ], function (FeatureLayer, ArcGISDynamicMapServiceLayer) {
+    ], function (InfoTemplate, FeatureLayer, ArcGISDynamicMapServiceLayer) {
       var url = $(".ad-url-input").val();
       if (url.split("/").indexOf("MapServer") >= 0) {
         var layer = new ArcGISDynamicMapServiceLayer(url, {
           id: layname,
-          name: layname
+          name: layname,
+          infoTemplate: new InfoTemplate(layname, "${*}")
         });
       } else if (url.split("/").indexOf("FeatureServer") >= 0) {
         var layer = new FeatureLayer(url, {
           id: layname,
-          name: layname
+          name: layname,
+          infoTemplate: new InfoTemplate(layname, "${*}")
         });
       }
       dis.addLayerOnMap(layer, layname);
+      $(".ad-url-input").val("");
     });
   }
 
@@ -342,12 +359,13 @@ class AddData {
   generatekmllayer(fileInfo, callback) {
     require([
       "esri/request",
+      "esri/InfoTemplate",
       "esri/layers/KMLLayer",
       "esri/layers/FeatureLayer",
       "dojo/_base/lang",
       "dojo/_base/json",
       "dojo/_base/array"
-    ], function (esriRequest, KMLLayer, FeatureLayer,
+    ], function (esriRequest, InfoTemplate,  KMLLayer, FeatureLayer,
       lang, dojoJson, arrayUtils) {
       var reader = new FileReader();
       reader.onerror = function (err) {
@@ -367,6 +385,7 @@ class AddData {
           linkInfo: {
             visibility: false,
           },
+          infoTemplate: new InfoTemplate(dis.getBaseFileName(id), "${*}")
         });
         layer.visible = true;
         delete layer.linkInfo;
@@ -638,9 +657,10 @@ class AddData {
 
   addFeatures(job, featureCollection) {
     require([
+      "esri/InfoTemplate",
       "esri/layers/FeatureLayer",
       "dojo/_base/array"
-    ], function (FeatureLayer, array) {
+    ], function (InfoTemplate, FeatureLayer, array) {
       //var triggerError = null; triggerError.length;
       var fullExtent, layers = [], map = job.map, nLayers = 0;
       if (featureCollection.layers) {
@@ -651,7 +671,8 @@ class AddData {
         var featureLayer = new FeatureLayer(layer, {
           id: layername,
           name: layername,
-          outFields: ["*"]
+          outFields: ["*"],
+          infoTemplate: new InfoTemplate(layername, "${*}")
         });
         featureLayer.xtnAddData = true;
         if (featureLayer.graphics) {
