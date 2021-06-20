@@ -119,7 +119,7 @@ class DigitizeFeature {
   addNewFeatureOnMap(evt) {
     disDigitize.map.disableSnapping();
     digitizetb.deactivate();
-    console.log(evt);
+    digitizeEditGrafic = evt.geometry;
     var geomtype = disDigitize.getGeometryType(evt.geometry);
     var symbol = disDigitize.getSymbology(geomtype);
     var graf = disDigitize.createGraphic(evt.geometry, symbol);
@@ -280,7 +280,7 @@ class DigitizeFeature {
         return;
 
       var labelStyle = "style='display: none;'"
-      if (akey != "OBJECTID")
+      if (akey != "OBJECTID" || akey != "objectid")
         labelStyle = "";
       var attributeBody = `
       <label for="`+ akey + `" ` + labelStyle + `>
@@ -312,7 +312,8 @@ class DigitizeFeature {
 
   updateFeatureAttributes() {
     $("#digitize-attr-update svg").show();
-    if($(".digitize-attr-body label input[name='OBJECTID']").val() == "null")  {
+    if($(".digitize-attr-body label input[name='OBJECTID']").val() == "null" ||
+    $(".digitize-attr-body label input[name='objectid']").val() == "null")  {
       disDigitize.doApplyEdits("insert");
     } else {
       disDigitize.doApplyEdits("update");
@@ -323,10 +324,8 @@ class DigitizeFeature {
     require([
       "esri/graphic"
     ], function (Graphic) {
-      var grafic = new Graphic();
       var attributes = disDigitize.getDigitizeAttributes()
-      grafic.setAttributes(attributes);
-      grafic.setGeometry(digitizeEditGrafic);
+      var grafic = new Graphic(digitizeEditGrafic, null, attributes);
       var layer = disDigitize.getSelectedLayer();
       if(hint == "update") {
         var aein = {
@@ -351,9 +350,6 @@ class DigitizeFeature {
         layer.applyEdits(aein.insert, aein.update, aein.delete, function (res) {
           alertify.success("Attributes updated successfully");
           disDigitize.clearFeatureKlik();
-          var layer = disDigitize.getSelectedLayer();
-          disDigitize.map.removeLayer(layer);
-          disDigitize.map.addLayer(layer);
         }, function () {
           alertify.error("Failed to update attributes");
         })
@@ -436,6 +432,11 @@ class DigitizeFeature {
   }
 
   insertFeatureKlik() {
+    var selectedLayer = $('.digitize-single-layer input[name="digitizeLayers"]:checked').val();
+    if(!selectedLayer) {
+      alertify.error("select one layer");
+      return;
+    }
     var layer = disDigitize.getSelectedLayer();
     var layerGeom = layer.geometryType;
     disDigitize.map.enableSnapping()

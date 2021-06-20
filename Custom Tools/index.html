@@ -580,155 +580,46 @@
           <div id="home-widget"></div>
           <div id="locate-widget"></div>
         </div>
-        <section class="menu menu--circle">
-          <input type="checkbox" id="menu__active" />
-          <label for="menu__active" class="menu__active">
-            <div class="menu__toggle">
-              <div class="icon">
-                <div class="hamburger"></div>
-              </div>
+        <div id="downicon1">
+          <svg class="arrows rotate" id="rotate" viewBox="0 0 150 200">
+            <path class="a1" d="M0 0 L30 32 L60 0"></path>
+            <path class="a2" d="M0 20 L30 52 L60 20"></path>
+            <path class="a3" d="M0 40 L30 72 L60 40"></path>
+          </svg>
+          <div id="viewmenu">Click here to view Menu</div>
+        </div>
+        
+        <div id="downicon">
+          <svg class="arrows-hide" viewBox="0 0 150 200">
+            <path class="a1" d="M0 0 L30 32 L60 0"></path>
+            <path class="a2" d="M0 20 L30 52 L60 20"></path>
+            <path class="a3" d="M0 40 L30 72 L60 40"></path>
+          </svg>
+        </div>
+      </div>
+      <div id="covered">
+        <div class="blurred-box">
+          <div class="grid-container">
+            <div class="box 1">
+              <div id="tool-bm" class="item"><i class="fas fa-bookmark"></i></div>
             </div>
-            <input type="radio" name="arrow--up" id="degree--up-0" />
-            <input type="radio" name="arrow--up" id="degree--up-1" />
-            <input type="radio" name="arrow--up" id="degree--up-2" />
-            <div class="menu__listings">
-              <ul class="circle">
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a id="tool-bm" href="#" class="button" title="Bookmark">
-                        <i class="fas fa-bookmark"></i>
-                      </a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a id="tool-draw" href="#" class="button" title="Draw Annotation">
-                        <i class="fas fa-pencil-alt"></i>
-                      </a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#">&nbsp</a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#" class="button" title="Add Data">
-                        <i class="fas fa-plus-square"></i>
-                      </a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#" class="button"><i class="fa fa-trash"></i></a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#" class="button"><i class="fa fa-battery-4"></i></a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#" class="button"><i class="fa fa-calendar"></i></a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a id="tool-digitize" href="#" class="button" title="Digitize Layers">
-                        <i class="fas fa-pen-square"></i>
-                      </a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a href="#" id="tool-basemap" class="button" title="Change Basemap">
-                        <i class="fas fa-map"></i>
-                      </a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="placeholder">
-                    <div class="upside">
-                      <a id="tool-adddata" href="#" class="button" title="Add Data">
-                        <i class="fas fa-plus-square"></i>
-                      </a>
-                    </div>
-                  </div>
-                </li>
-              </ul>
+            <div class="box 2">
+              <div id="tool-draw" class="item"><i class="fas fa-pencil-alt"></i></div>
             </div>
-            <div class="menu__arrow menu__arrow--top">
-              <ul>
-                <li>
-                  <label for="degree--up-0">
-                    <div class="arrow"></div>
-                  </label>
-                  <label for="degree--up-1">
-                    <div class="arrow"></div>
-                  </label>
-                  <label for="degree--up-2">
-                    <div class="arrow"></div>
-                  </label>
-                </li>
-              </ul>
+            <div class="box 3">
+              <div id="tool-digitize" class="item"><i class="fas fa-pen-square"></i></div>
             </div>
-            <div class="menu__arrow menu__arrow--top circular-bottom-arrow">
-              <ul>
-                <li>
-                  <label for="degree--up-0">
-                    <div class="arrow"></div>
-                  </label>
-                  <label for="degree--up-1">
-                    <div class="arrow"></div>
-                  </label>
-                  <label for="degree--up-2">
-                    <div class="arrow"></div>
-                  </label>
-                </li>
-              </ul>
+            <div class="box 4">
+              <div id="tool-adddata" class="item"><i class="fas fa-plus-square"></i></div>
             </div>
-          </label>
-        </section>
-        <!-- <div class="page-loader">
-          <i class="fas fa-spinner fa-spin map-loader"></i>
-        </div> -->
+            <div class="box 5">
+              <div id="tool-basemap" class="item"><i class="fas fa-map"></i></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div id="digitize-attr" class="digitize-attribute-container">
-      <!-- <div class="digitize-attr-header">
-        <span>Attribute Header</span>
-        <div>
-          <i class="fas fa-times"></i>
-        </div>
-      </div>
-      <div class="digitize-attr-body">
-        <label for="field1">
-          <span>Name 
-            <span class="required">*</span>
-          </span>
-          <input type="text" class="input-field" name="field1" value="" />
-        </label>
-      </div> -->
     </div>
   </div>
 </body>
