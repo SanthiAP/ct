@@ -563,6 +563,22 @@
           <div id="tool-digitize-container" class="tools-ind-container">
 
           </div>
+          <div id="tool-findCoordinate-container" class="tools-ind-container">
+            <div class="form-style">
+              <label for="locate-lat"><span>Latitude <span class="required">*</span></span>
+                <input id="locate-lat" type="text" class="input-field locateInput" name="text-family" value=""
+                  placeholder="Please enter Latitude.." />
+              </label>
+              <label for="locate-long"><span>Latitude <span class="required">*</span></span>
+                <input id="locate-long" type="text" class="input-field locateInput" name="text-family" value=""
+                  placeholder="Please enter Longitude.." />
+              </label>
+              <div class="flex-div locate-btn-container">
+                <button id="locate-clear" class="locate-btn clearButton">Clear</button>
+                <button id="locate-submit" class="locate-btn submitButton">Locate</button>
+              </div>
+          </div>
+          </div>
         </div>
       </div>
 
@@ -614,6 +630,9 @@
             </div>
             <div class="box 5">
               <div id="tool-basemap" class="item"><i class="fas fa-map"></i></div>
+            </div>
+            <div class="box 6">
+              <div id="tool-findCoordinate" class="item"><i class="fas fa-search-location"></i></div>
             </div>
           </div>
         </div>

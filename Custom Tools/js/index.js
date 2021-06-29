@@ -35,7 +35,8 @@ $(document).ready(function () {
     "tool-draw": "Draw",
     "tool-adddata": "Add Data",
     "tool-basemap": "Change Basemap",
-    "tool-digitize": "Digitize"
+    "tool-digitize": "Digitize",
+    "tool-findCoordinate": "Find Coordinate"
   }
   require(["esri/map",
     "esri/Color",
@@ -482,12 +483,12 @@ $(document).ready(function () {
         $("#downicon1").css("left", "25%");
         $("#covered").css("left", "25%");
       }
-      
+
       $(".side-nav-header svg").click(function () {
         $(".box .item").removeClass("active-tool");
         closeNav();
       })
-      
+
       function closeNav() {
         $("#map-container").css("width", "100%");
         $(".map-single-widgets").css("left", "50%");
@@ -1355,5 +1356,61 @@ $(document).ready(function () {
         $('#downicon1').show();
         $('#downicon').hide();
       });
+
+      $("#locate-submit").click(function () {
+        var long = $("#locate-long").val();
+        var lat = $("#locate-lat").val();
+
+        if (Number.isNaN(lat) && Number.isNaN(long)) {
+          alert("Please enter the values to perform the query!");
+          return;
+        }
+
+        var point = esri.geometry.geographicToWebMercator(new esri.geometry.Point(long, lat));
+
+        var symbol = new SimpleMarkerSymbol().setColor(new Color('blue')).setSize("12")
+          .setOutline(new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([0, 0, 0, 0.5]), 1));
+        var graphic = new Graphic(point, symbol);
+        map.graphics.add(graphic);
+        map.centerAndZoom(point, 16);
+      });
+
+      $("#locate-clear").click(function () {
+        $("#locate-long").val("");
+        $("#locate-lat").val("");
+        map.graphics.clear();
+      });
+
+      /**
+         * Function to vaidate lat inputs
+         * @author Nithya D
+         * @date 18.03.2021
+         */
+      $(document).on("input keydown keyup", ".locateInput", function (evt) {
+        var keyCode = evt.charCode || evt.keyCode;
+        if (keyCode == 8 || keyCode == 46) {
+          return;
+        }
+        var value = $(this).val();
+        var pattern = "^-?\\d*[.]?\\d{0,6}$";
+        var regex = new RegExp(pattern);
+        if ((!regex.test(value) || parseFloat(value) < -90 || parseFloat(value) > 90) && value != "") {
+          alert("Oops...Invalid Latitude.Values between -90 to 90 and upto 6 decimal places are allowed!");
+        }
+        var validLat = regex.test(value) &&
+          (value === "" || (parseFloat(value) >= -90 && parseFloat(value) <= 90) || (value === "-" && value.indexOf("-") == 0));
+
+        if (validLat) {
+          this.oldValue = this.value;
+          this.oldSelectionStart = this.selectionStart;
+          this.oldSelectionEnd = this.selectionEnd;
+        } else if (this.hasOwnProperty("oldValue")) {
+          this.value = this.oldValue;
+          this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+        } else {
+          this.value = "";
+        }
+      });
+
     });
 });
